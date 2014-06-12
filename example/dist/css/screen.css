@@ -46,14 +46,8 @@ body {
     border-radius: 100%;
     border: 2px solid #000; }
   .map .background {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 100%;
-    background: url('../img/husl.jpg');
-    -webkit-background-size: 1000% 1000%;
-    background-size: 1000% 1000%;
-    background-position: 0 0; }
+    height: 100%;
+    width: 100%; }
 
 .sample {
   position: absolute;

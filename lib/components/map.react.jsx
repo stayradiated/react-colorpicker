@@ -1,5 +1,7 @@
+var fs = require('fs');
 var React = require('react');
 var tiny = require('tinytinycolor');
+var huslMap = require('../utils/huslMap');
 
 var Map = React.createClass({
 
@@ -61,17 +63,13 @@ var Map = React.createClass({
 
   render: function () {
     var lightness = this.props.l >= 1 ? 0.99 : this.props.l;
-
-    var pos = {
-      x: (Math.floor(lightness * 100) % 10) * -100,
-      y: Math.floor(lightness * 10) * -100
-    };
+    lightness = Math.floor(lightness * 100);
 
     return (
       <div className="map" onMouseDown={this.handleMouseDown}>
-        <div className="background" style={{
-          'background-position': pos.x + '% ' + pos.y + '%'
-        }}/>
+        <img className="background" src={
+          'data:image/jpg;base64,' + huslMap[lightness]
+        } />
         <div className="pointer" style={{
           top: (100 - this.props.s * 100) + '%',
           left: this.props.h / 360 * 100 + '%'

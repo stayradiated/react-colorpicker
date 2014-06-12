@@ -6,14 +6,15 @@ var react = require('gulp-react');
 var sass = require('gulp-sass');
 var autoprefixer = require('gulp-autoprefixer');
 var reactify = require('reactify');
+var streamify = require('gulp-streamify');
 var watchify = require('watchify');
 
 gulp.task('default', ['package']); 
 
 gulp.task('package', function () {
   return gulp.src('lib/**/*.js*', {buffer: false})
+  .pipe(streamify(react()))
   .pipe(brfs())
-  .pipe(react())
   .pipe(gulp.dest('pkg'));
 });
 
@@ -38,6 +39,7 @@ gulp.task('example/app', function () {
   bundler.add('./example/app.jsx');
 
   bundler.transform(reactify);
+  bundler.transform(brfs.brfs);
 
   bundler.on('update', rebundle);
   bundler.on('error', console.log.bind(console));
