@@ -30,9 +30,9 @@
   },
   "homepage": "https://github.com/stayradiated/react-colorpicker",
   "dependencies": {
-    "envify": "^1.2.1",
     "husl": "^4.0.0",
-    "react": "^0.10.0"
+    "react": "^0.10.0",
+    "tinytinycolor": "0.0.3"
   },
   "devDependencies": {
     "gulp": "^3.8.0",

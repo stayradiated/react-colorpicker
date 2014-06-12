@@ -1,7 +1,7 @@
 body {
   background: #eee; }
 
-.example {
+#container {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -29,7 +29,12 @@ body {
   top: 0;
   bottom: 0;
   left: 0;
-  width: 50%; }
+  width: 50%;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  cursor: crosshair; }
   .map .pointer {
     position: absolute;
     top: 20%;
@@ -60,7 +65,12 @@ body {
   top: 0;
   bottom: 0;
   left: 50%;
-  width: 10%; }
+  width: 10%;
+  cursor: ns-resize;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none; }
   .slider .track {
     position: absolute;
     top: 0;
@@ -78,6 +88,7 @@ body {
     height: 14px;
     background: #ddd;
     margin-left: -7px;
+    margin-top: -7px;
     border-radius: 14px; }
 
 .details {
@@ -89,9 +100,11 @@ body {
   .details ul {
     padding: 0;
     margin: 0 0 20px 0; }
-  .details .li {
-    list-style-type: none; }
+    .details ul li {
+      list-style-type: none; }
   .details label {
     color: #888; }
   .details .value {
     color: #ccc; }
+  .details .hex {
+    text-transform: uppercase; }

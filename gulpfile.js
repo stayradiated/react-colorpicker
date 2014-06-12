@@ -19,7 +19,7 @@ gulp.task('watch', ['default'], function () {
   gulp.watch('./lib/**/*', ['package']);
 });
 
-gulp.task('example', ['example/app'], function () {
+gulp.task('example', ['example/stylesheets', 'example/app'], function () {
   gulp.watch('./example/*.scss', ['example/stylesheets']);
 
   return connect.server({
@@ -30,8 +30,9 @@ gulp.task('example', ['example/app'], function () {
 });
 
 gulp.task('example/app', function () {
-
   var bundler = watchify({ extensions: '.jsx' });
+
+  bundler.exclude('stylus');
   bundler.add('./example/app.jsx');
 
   bundler.transform(reactify);
