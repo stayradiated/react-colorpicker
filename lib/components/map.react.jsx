@@ -41,15 +41,13 @@ var Map = React.createClass({
     var el = this.getDOMNode();
     var rect = el.getBoundingClientRect();
     var hue = (e.clientX - rect.left) / rect.width;
-    var sat = (e.clientY - rect.top) / rect.height;
+    var sat = (rect.bottom - e.clientY) / rect.height;
 
     if (hue < 0) hue = 0;
     else if (hue > 1) hue = 1;
-    hue *= 360;
 
     if (sat < 0) sat = 0;
     else if (sat > 1) sat = 1;
-    sat = 1 - sat;
 
     this.props.onChange(hue, sat);
   },
@@ -77,7 +75,7 @@ var Map = React.createClass({
         }} />
         <div className="pointer" style={{
           top: (100 - this.props.s * 100) + '%',
-          left: this.props.h / 360 * 100 + '%'
+          left: this.props.h * 100 + '%'
         }} />
       </div>
     );

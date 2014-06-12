@@ -30,10 +30,10 @@ body {
 
 .map {
   position: absolute;
-  top: 0;
+  top: 10%;
   bottom: 0;
-  left: 0;
-  width: 50%;
+  left: 10%;
+  width: 40%;
   user-select: none;
   cursor: crosshair;
   overflow: hidden;
@@ -79,36 +79,83 @@ body {
 
 .slider {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: 10%;
-  cursor: ns-resize;
   user-select: none;
 
-  .track {
-    position: absolute;
+  &.vertical {
     top: 0;
     bottom: 0;
     left: 50%;
-    width: 6px;
-    margin-left: -3px;
+    width: 10px;
+    cursor: ns-resize;
+
+    .track {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 6px;
+      margin-left: -3px;
+    }
+  }
+
+  &.horizontal {
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 10px;
+    cursor: ew-resize;
+
+    .track {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      height: 6px;
+      margin-top: -3px;
+    }
+  }
+
+  .track {
     border-radius: 3px;
     background: #888;
   }
 
   .pointer {
     position: absolute;
-    top: 50%;
+    bottom: 50%;
     left: 50%;
     width: 14px;
     height: 14px;
     background: #ddd;
     margin-left: -7px;
-    margin-top: -7px;
+    margin-bottom: -7px;
     border-radius: 14px;
   }
 
+}
+
+.hue-slider {
+  position: absolute;
+  top: 0;
+  left: 10%;
+  height: 10%;
+  width: 40%
+}
+
+.sat-slider {
+  position: absolute;
+  top: 10%;
+  bottom: 0;
+  left: 0;
+  width: 10%;
+}
+
+.light-slider {
+  position: absolute;
+  top: 10%;
+  bottom: 0;
+  left: 50%;
+  width: 10%;
 }
 
 .details {

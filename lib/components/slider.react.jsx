@@ -1,9 +1,10 @@
-var React = require('react');
+var React = require('react/addons');
 var tiny = require('tinytinycolor');
 
 var Slider = React.createClass({
 
   propTypes: {
+    vertical: React.PropTypes.bool.isRequired,
     value: React.PropTypes.number.isRequired,
     onChange: React.PropTypes.func
   },
@@ -25,6 +26,11 @@ var Slider = React.createClass({
     document.addEventListener('mouseup', this.handleMouseUp);
   },
 
+  componentWillUnmount: function () {
+    document.removeEventListener('mousemove', this.handleMouseMove);
+    document.removeEventListener('mouseup', this.handleMouseUp);
+  },
+
   handleMouseDown: function () {
     this.setState({
       active: true
@@ -35,13 +41,17 @@ var Slider = React.createClass({
     if (! this.state.active) return;
     var el = this.getDOMNode();
     var rect = el.getBoundingClientRect();
-    var value = (e.clientY - rect.top) / rect.height;
+
+    var value;
+    if (this.props.vertical) {
+      value = (rect.bottom - e.clientY) / rect.height;
+    } else {
+      value = (e.clientX - rect.left) / rect.width;
+    }
 
     if (value < 0) value = 0;
     else if (value > 1) value = 1;
     
-    value = 1 - value;
-
     this.props.onChange(value);
   },
 
@@ -52,13 +62,24 @@ var Slider = React.createClass({
     });
   },
 
+  getCss: function () {
+    var obj = {};
+    var attr = this.props.vertical ? 'bottom' : 'left';
+    obj[attr] = this.props.value * 100 + '%';
+    return obj;
+  },
+
   render: function () {
+    var classes = React.addons.classSet({
+      slider: true,
+      vertical: this.props.vertical,
+      horizontal: ! this.props.vertical
+    });
+
     return (
-      <div className="slider" onMouseDown={this.handleMouseDown}>
+      <div className={classes} onMouseDown={this.handleMouseDown}>
         <div className="track" />
-        <div className="pointer" style={{
-          top: (100 - this.props.value * 100) + '%'
-        }} />
+        <div className="pointer" style={this.getCss()} />
       </div>
     );
   }
