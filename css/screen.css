@@ -1,0 +1,151 @@
+body {
+  background: #eee; }
+
+#container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -200px;
+  margin-left: -400px;
+  width: 800px;
+  height: 400px;
+  -webkit-box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.3); }
+
+/**
+ * RECOMMENDED STYLES
+ */
+.colorpicker {
+  color: #fff;
+  background: #333;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  border: 20px solid #333; }
+
+.map {
+  position: absolute;
+  top: 10%;
+  bottom: 0;
+  left: 10%;
+  width: 40%;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  cursor: crosshair;
+  overflow: hidden; }
+  .map.dark .pointer {
+    border-color: #fff; }
+  .map.light .pointer {
+    border-color: #000; }
+  .map .pointer {
+    position: absolute;
+    top: 20%;
+    left: 20%;
+    width: 6px;
+    height: 6px;
+    margin-left: -3px;
+    margin-top: -3px;
+    border-radius: 100%;
+    border: 1px solid #000; }
+  .map .background {
+    top: 0;
+    left: 0;
+    position: absolute;
+    height: 1000%;
+    width: 100%; }
+
+.sample {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 20%;
+  height: 50%;
+  background: #bcb83e; }
+
+.slider {
+  position: absolute;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none; }
+  .slider.vertical {
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 10px;
+    cursor: ns-resize; }
+    .slider.vertical .track {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 6px;
+      margin-left: -3px; }
+  .slider.horizontal {
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 10px;
+    cursor: ew-resize; }
+    .slider.horizontal .track {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      height: 6px;
+      margin-top: -3px; }
+  .slider .track {
+    border-radius: 3px;
+    background: #888; }
+  .slider .pointer {
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    width: 14px;
+    height: 14px;
+    background: #ddd;
+    margin-left: -7px;
+    margin-bottom: -7px;
+    border-radius: 14px; }
+
+.hue-slider {
+  position: absolute;
+  top: 0;
+  left: 10%;
+  height: 10%;
+  width: 40%; }
+
+.sat-slider {
+  position: absolute;
+  top: 10%;
+  bottom: 0;
+  left: 0;
+  width: 10%; }
+
+.light-slider {
+  position: absolute;
+  top: 10%;
+  bottom: 0;
+  left: 50%;
+  width: 10%; }
+
+.details {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 60%;
+  width: 30%; }
+  .details ul {
+    padding: 0;
+    margin: 0 0 20px 0; }
+    .details ul li {
+      list-style-type: none; }
+  .details label {
+    color: #888; }
+  .details .value {
+    color: #ccc; }
+  .details .hex {
+    text-transform: uppercase; }
