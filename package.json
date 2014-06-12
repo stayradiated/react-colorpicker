@@ -37,6 +37,7 @@
   "devDependencies": {
     "gulp": "^3.8.0",
     "gulp-autoprefixer": "0.0.7",
+    "gulp-brfs": "0.0.1",
     "gulp-connect": "^2.0.5",
     "gulp-react": "^0.3.3",
     "gulp-sass": "^0.7.2",

@@ -40,7 +40,7 @@ var ColorPicker = React.createClass({
 
     return (
       <div className="colorpicker">
-        <Map h={this.state.h} s={this.state.s} onChange={this.handleMapChange} />
+        <Map h={this.state.h} s={this.state.s} l={this.state.l} onChange={this.handleMapChange} />
         <Slider value={this.state.l} onChange={this.handleSliderChange} />
         <Details h={this.state.h} s={this.state.s} l={this.state.l} />
         <Sample color={color} />

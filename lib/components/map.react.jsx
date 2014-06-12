@@ -6,6 +6,7 @@ var Map = React.createClass({
   propTypes: {
     h: React.PropTypes.number.isRequired,
     s: React.PropTypes.number.isRequired,
+    l: React.PropTypes.number.isRequired,
     onChange: React.PropTypes.func
   },
 
@@ -59,9 +60,18 @@ var Map = React.createClass({
 
 
   render: function () {
+    var lightness = this.props.l >= 1 ? 0.99 : this.props.l;
+
+    var pos = {
+      x: (Math.floor(lightness * 100) % 10) * -100,
+      y: Math.floor(lightness * 10) * -100
+    };
+
     return (
       <div className="map" onMouseDown={this.handleMouseDown}>
-        <div className="background" />
+        <div className="background" style={{
+          'background-position': pos.x + '% ' + pos.y + '%'
+        }}/>
         <div className="pointer" style={{
           top: (100 - this.props.s * 100) + '%',
           left: this.props.h / 360 * 100 + '%'

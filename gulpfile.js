@@ -1,4 +1,5 @@
 var gulp = require('gulp');
+var brfs = require('gulp-brfs');
 var source = require('vinyl-source-stream');
 var connect = require('gulp-connect');
 var react = require('gulp-react');
@@ -10,7 +11,8 @@ var watchify = require('watchify');
 gulp.task('default', ['package']); 
 
 gulp.task('package', function () {
-  return gulp.src('lib/**/*.js*')
+  return gulp.src('lib/**/*.js*', {buffer: false})
+  .pipe(brfs())
   .pipe(react())
   .pipe(gulp.dest('pkg'));
 });

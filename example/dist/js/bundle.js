@@ -50,7 +50,7 @@ var ColorPicker = React.createClass({displayName: 'ColorPicker',
 
     return (
       React.DOM.div( {className:"colorpicker"}, 
-        Map( {h:this.state.h, s:this.state.s, onChange:this.handleMapChange} ),
+        Map( {h:this.state.h, s:this.state.s, l:this.state.l, onChange:this.handleMapChange} ),
         Slider( {value:this.state.l, onChange:this.handleSliderChange} ),
         Details( {h:this.state.h, s:this.state.s, l:this.state.l} ),
         Sample( {color:color} )
@@ -121,6 +121,7 @@ var Map = React.createClass({displayName: 'Map',
   propTypes: {
     h: React.PropTypes.number.isRequired,
     s: React.PropTypes.number.isRequired,
+    l: React.PropTypes.number.isRequired,
     onChange: React.PropTypes.func
   },
 
@@ -174,9 +175,18 @@ var Map = React.createClass({displayName: 'Map',
 
 
   render: function () {
+    var lightness = this.props.l >= 1 ? 0.99 : this.props.l;
+
+    var pos = {
+      x: (Math.floor(lightness * 100) % 10) * -100,
+      y: Math.floor(lightness * 10) * -100
+    };
+
     return (
       React.DOM.div( {className:"map", onMouseDown:this.handleMouseDown}, 
-        React.DOM.div( {className:"background"} ),
+        React.DOM.div( {className:"background", style:{
+          'background-position': pos.x + '% ' + pos.y + '%'
+        }}),
         React.DOM.div( {className:"pointer", style:{
           top: (100 - this.props.s * 100) + '%',
           left: this.props.h / 360 * 100 + '%'
