@@ -6,18 +6,13 @@ var Details = React.createClass({
   propTypes: {
     h: React.PropTypes.number.isRequired,
     s: React.PropTypes.number.isRequired,
-    l: React.PropTypes.number.isRequired
+    l: React.PropTypes.number.isRequired,
+    color: React.PropTypes.instanceOf(tiny).isRequired
   },
 
   render: function () {
-    var color = tiny({
-      h: this.props.h,
-      s: this.props.s,
-      l: this.props.l
-    });
-
-    var rgb = color.toRgb();
-    var hex = color.toHex();
+    var rgb = this.props.color.toRgb();
+    var hex = this.props.color.toHex();
     var hsl = {
       h: Math.round(this.props.h),
       s: Math.round(this.props.s * 100),

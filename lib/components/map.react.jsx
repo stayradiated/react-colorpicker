@@ -29,7 +29,8 @@ var Map = React.createClass({
     document.addEventListener('mouseup', this.handleMouseUp);
   },
 
-  handleMouseDown: function () {
+  handleMouseDown: function (e) {
+    e.preventDefault();
     this.setState({
       active: true
     });
@@ -63,13 +64,17 @@ var Map = React.createClass({
 
   render: function () {
     var lightness = this.props.l >= 1 ? 0.99 : this.props.l;
-    lightness = Math.floor(lightness * 100);
+    var imageId = Math.floor(lightness * 10);
+    var offset = (Math.floor(lightness * 100) % 10) * -100;
+    var darkLight = lightness < 0.5 ? 'dark' : 'light';
 
     return (
-      <div className="map" onMouseDown={this.handleMouseDown}>
+      <div className={'map ' + darkLight} onMouseDown={this.handleMouseDown}>
         <img className="background" src={
-          'data:image/jpg;base64,' + huslMap[lightness]
-        } />
+          'data:image/jpg;base64,' + huslMap[imageId]
+        } style={{
+          top: offset + '%'
+        }} />
         <div className="pointer" style={{
           top: (100 - this.props.s * 100) + '%',
           left: this.props.h / 360 * 100 + '%'

@@ -36,6 +36,15 @@ body {
   width: 50%;
   user-select: none;
   cursor: crosshair;
+  overflow: hidden;
+
+  &.dark .pointer {
+    border-color: #fff;
+  }
+
+  &.light .pointer {
+    border-color: #000;
+  }
 
   .pointer {
     position: absolute;
@@ -46,11 +55,14 @@ body {
     margin-left: -3px;
     margin-top: -3px;
     border-radius: 100%;
-    border: 2px solid #000;
+    border: 1px solid #000;
   }
 
   .background {
-    height: 100%;
+    top: 0;
+    left: 0;
+    position: absolute;
+    height: 1000%;
     width: 100%;
   }
 
