@@ -32,18 +32,18 @@
   "dependencies": {
     "husl": "^4.0.0",
     "react": "^0.10.0",
-    "tinytinycolor": "0.0.3"
+    "tinytinycolor": "^0.0.3"
   },
   "devDependencies": {
     "gulp": "^3.8.0",
-    "gulp-autoprefixer": "0.0.7",
-    "gulp-brfs": "0.0.4",
+    "gulp-autoprefixer": "^0.0.7",
+    "gulp-brfs": "^0.0.4",
     "gulp-connect": "^2.0.5",
     "gulp-react": "^0.3.3",
     "gulp-sass": "^0.7.2",
-    "gulp-streamify": "0.0.5",
+    "gulp-streamify": "^0.0.5",
     "gulp-uglify": "^0.3.0",
-    "jpeg-js": "0.0.3",
+    "jpeg-js": "^0.0.3",
     "reactify": "^0.13.1",
     "vinyl-source-stream": "^0.1.1",
     "watchify": "^0.10.2"
