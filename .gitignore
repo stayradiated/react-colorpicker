@@ -1,2 +1,4 @@
 node_modules
 /pkg
+/example/dist/js/*
+/example/dist/css/*

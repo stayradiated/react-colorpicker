@@ -8,6 +8,7 @@ var autoprefixer = require('gulp-autoprefixer');
 var reactify = require('reactify');
 var streamify = require('gulp-streamify');
 var watchify = require('watchify');
+var uglify = require('gulp-uglify');
 
 gulp.task('default', ['package']); 
 
@@ -61,4 +62,10 @@ gulp.task('example/stylesheets', function () {
     .pipe(autoprefixer())
     .pipe(gulp.dest('./example/dist/css'))
     .pipe(connect.reload());
+});
+
+gulp.task('example/minify', function () {
+  return gulp.src('./example/dist/js/*')
+    .pipe(uglify())
+    .pipe(gulp.dest('./example/dist/js'));
 });

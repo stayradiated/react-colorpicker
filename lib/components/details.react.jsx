@@ -14,7 +14,7 @@ var Details = React.createClass({
     var rgb = this.props.color.toRgb();
     var hex = this.props.color.toHex();
     var hsl = {
-      h: Math.round(this.props.h),
+      h: Math.round(this.props.h * 360),
       s: Math.round(this.props.s * 100),
       l: Math.round(this.props.l * 100)
     };

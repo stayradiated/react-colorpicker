@@ -42,6 +42,7 @@
     "gulp-react": "^0.3.3",
     "gulp-sass": "^0.7.2",
     "gulp-streamify": "0.0.5",
+    "gulp-uglify": "^0.3.0",
     "jpeg-js": "0.0.3",
     "reactify": "^0.13.1",
     "vinyl-source-stream": "^0.1.1",
