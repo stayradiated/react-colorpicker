@@ -1,5 +1,5 @@
 var React = require('react');
-var tiny = require('tinytinycolor');
+var tiny = require('tinycolor2');
 
 var Details = React.createClass({
 
@@ -20,6 +20,7 @@ var Details = React.createClass({
     };
 
     return (
+      /* jshint ignore: start */
       <div className="details">
         <ul className="rgb">
           <li><label>R:</label> <span className="value">{ rgb.r }</span></li>
@@ -35,6 +36,7 @@ var Details = React.createClass({
           <li><label>#</label> <span className="value">{ hex }</span></li>
         </ul>
       </div>
+      /* jshint ignore: end */
     );
   }
 

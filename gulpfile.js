@@ -1,5 +1,4 @@
 var gulp = require('gulp');
-var brfs = require('gulp-brfs');
 var source = require('vinyl-source-stream');
 var connect = require('gulp-connect');
 var react = require('gulp-react');
@@ -16,7 +15,6 @@ gulp.task('default', ['package']);
 gulp.task('package', function () {
   return gulp.src('lib/**/*.js*', {buffer: false})
   .pipe(streamify(react()))
-  .pipe(brfs())
   .pipe(gulp.dest('pkg'));
 });
 
@@ -42,17 +40,16 @@ gulp.task('example/app', function () {
     extensions: '.jsx'
   }));
 
-  bundler.exclude('stylus');
   bundler.add('./example/app.jsx');
-
   bundler.transform(reactify);
-  bundler.transform(brfs.brfs);
 
   bundler.on('update', rebundle);
-  bundler.on('error', console.log.bind(console));
 
   function rebundle () {
     return bundler.bundle()
+      .on('error', function (err) {
+        console.log(err.message);
+      })
       .pipe(source('bundle.js'))
       .pipe(gulp.dest('./example/dist/js'))
       .pipe(connect.reload());

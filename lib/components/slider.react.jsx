@@ -1,5 +1,5 @@
 var React = require('react/addons');
-var tiny = require('tinytinycolor');
+var tiny = require('tinycolor2');
 
 var Slider = React.createClass({
 
@@ -77,10 +77,12 @@ var Slider = React.createClass({
     });
 
     return (
+      /* jshint ignore: start */
       <div className={classes} onMouseDown={this.handleMouseDown}>
         <div className="track" />
         <div className="pointer" style={this.getCss()} />
       </div>
+      /* jshint ignore: end */
     );
   }
 

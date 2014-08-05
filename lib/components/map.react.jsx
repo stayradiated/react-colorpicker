@@ -1,7 +1,6 @@
 var fs = require('fs');
 var React = require('react');
-var tiny = require('tinytinycolor');
-var huslMap = require('../utils/huslMap');
+var tiny = require('tinycolor2');
 
 var Map = React.createClass({
 
@@ -40,16 +39,19 @@ var Map = React.createClass({
     if (! this.state.active) return;
     var el = this.getDOMNode();
     var rect = el.getBoundingClientRect();
-    var hue = (e.clientX - rect.left) / rect.width;
-    var sat = (rect.bottom - e.clientY) / rect.height;
+    var x = (e.clientX - rect.left) / rect.width;
+    var y = (rect.bottom - e.clientY) / rect.height;
 
-    if (hue < 0) hue = 0;
-    else if (hue > 1) hue = 1;
+    if (x < 0) x = 0;
+    else if (x > 1) x = 1;
 
-    if (sat < 0) sat = 0;
-    else if (sat > 1) sat = 1;
+    if (y < 0) y = 0;
+    else if (y > 1) y = 1;
 
-    this.props.onChange(hue, sat);
+    this.props.onChange(
+      x, // saturation
+      y  // lightness
+    );
   },
 
   handleMouseUp: function () {
@@ -62,22 +64,25 @@ var Map = React.createClass({
 
   render: function () {
     var lightness = this.props.l >= 1 ? 0.99 : this.props.l;
-    var imageId = Math.floor(lightness * 10);
-    var offset = (Math.floor(lightness * 100) % 10) * -100;
     var darkLight = lightness < 0.5 ? 'dark' : 'light';
+    var bgColor = tiny([
+      'hsv(',
+      this.props.h * 360,
+      ', 100%, 100%)' 
+    ].join('')).toHexString();
 
     return (
+      /* jshint ignore: start */
       <div className={'map ' + darkLight} onMouseDown={this.handleMouseDown}>
-        <img className="background" src={
-          'data:image/jpg;base64,' + huslMap[imageId]
-        } style={{
-          top: offset + '%'
+        <div className="background" style={{
+          backgroundColor: bgColor
         }} />
         <div className="pointer" style={{
-          top: (100 - this.props.s * 100) + '%',
-          left: this.props.h * 100 + '%'
+          top: (100 - this.props.l * 100) + '%',
+          left: this.props.s * 100 + '%'
         }} />
       </div>
+      /* jshint ignore: end */
     );
   }
 

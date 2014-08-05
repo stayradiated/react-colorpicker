@@ -1,5 +1,5 @@
 var React = require('react');
-var tiny = require('tinytinycolor');
+var tiny = require('tinycolor2');
 
 var Sample = React.createClass({
 
@@ -9,9 +9,11 @@ var Sample = React.createClass({
 
   render: function () {
     return (
+      /* jshint ignore: start */
       <div className="sample" style={{
         background: this.props.color.toHexString()
       }} />
+      /* jshint ignore: end */
     );
   }
 

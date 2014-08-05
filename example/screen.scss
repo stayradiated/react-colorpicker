@@ -62,8 +62,27 @@ body {
     top: 0;
     left: 0;
     position: absolute;
-    height: 1000%;
+    height: 100%;
     width: 100%;
+  }
+
+  .background:before,
+  .background:after {
+    display: block;
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+  }
+
+  .background:after {
+    background: linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%);
+  }
+
+  .background:before {
+    background: linear-gradient(to right, rgba(255,255,255,1) 0%,rgba(255,255,255,0) 100%);
   }
 
 }
@@ -134,7 +153,7 @@ body {
 
 }
 
-.hue-slider {
+.sat-slider {
   position: absolute;
   top: 0;
   left: 10%;
@@ -142,7 +161,7 @@ body {
   width: 40%
 }
 
-.sat-slider {
+.light-slider {
   position: absolute;
   top: 10%;
   bottom: 0;
@@ -150,13 +169,31 @@ body {
   width: 10%;
 }
 
-.light-slider {
+.hue-slider {
   position: absolute;
   top: 10%;
   bottom: 0;
   left: 50%;
   width: 10%;
+  
+  .track {
+    background: linear-gradient(to bottom,
+      #FF0000 0%,
+      #FF0099 10%,
+      #CD00FF 20%,
+      #3200FF 30%,
+      #0066FF 40%,
+      #00FFFD 50%,
+      #00FF66 60%,
+      #35FF00 70%,
+      #CDFF00 80%,
+      #FF9900 90%,
+      #FF0000 100%
+    );
+  }
+
 }
+
 
 .details {
   position: absolute;
