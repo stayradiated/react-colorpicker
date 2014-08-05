@@ -8,6 +8,7 @@ var autoprefixer = require('gulp-autoprefixer');
 var reactify = require('reactify');
 var streamify = require('gulp-streamify');
 var watchify = require('watchify');
+var browserify = require('browserify');
 var uglify = require('gulp-uglify');
 
 gulp.task('default', ['package']); 
@@ -34,7 +35,12 @@ gulp.task('example', ['example/stylesheets', 'example/app'], function () {
 });
 
 gulp.task('example/app', function () {
-  var bundler = watchify({ extensions: '.jsx' });
+  var bundler = watchify(browserify({
+    cache: {},
+    packageCache: {},
+    fullPaths: true,
+    extensions: '.jsx'
+  }));
 
   bundler.exclude('stylus');
   bundler.add('./example/app.jsx');
