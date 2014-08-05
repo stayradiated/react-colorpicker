@@ -1,5 +1,4 @@
 var React = require('react/addons');
-var tiny = require('tinycolor2');
 
 var Slider = React.createClass({
 
@@ -51,7 +50,7 @@ var Slider = React.createClass({
 
     if (value < 0) value = 0;
     else if (value > 1) value = 1;
-    
+
     this.props.onChange(value);
   },
 

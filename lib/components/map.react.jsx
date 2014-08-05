@@ -1,21 +1,9 @@
-var fs = require('fs');
 var React = require('react');
-var tiny = require('tinycolor2');
+
+var store = require('../store');
+var actions = require('../actions');
 
 var Map = React.createClass({
-
-  propTypes: {
-    h: React.PropTypes.number.isRequired,
-    s: React.PropTypes.number.isRequired,
-    l: React.PropTypes.number.isRequired,
-    onChange: React.PropTypes.func
-  },
-
-  getDefaultProps: function () {
-    return {
-      onChange: function () {}
-    };
-  },
 
   getInitialState: function () {
     return {
@@ -48,10 +36,8 @@ var Map = React.createClass({
     if (y < 0) y = 0;
     else if (y > 1) y = 1;
 
-    this.props.onChange(
-      x, // saturation
-      y  // lightness
-    );
+    actions.setSaturation(x);
+    actions.setValue(y);
   },
 
   handleMouseUp: function () {
@@ -61,25 +47,19 @@ var Map = React.createClass({
     });
   },
 
-
   render: function () {
-    var lightness = this.props.l >= 1 ? 0.99 : this.props.l;
+    var lightness = store.value >= 1 ? 0.99 : store.value;
     var darkLight = lightness < 0.5 ? 'dark' : 'light';
-    var bgColor = tiny([
-      'hsv(',
-      this.props.h * 360,
-      ', 100%, 100%)' 
-    ].join('')).toHexString();
 
     return (
       /* jshint ignore: start */
       <div className={'map ' + darkLight} onMouseDown={this.handleMouseDown}>
         <div className="background" style={{
-          backgroundColor: bgColor
+          backgroundColor: '#' + store.toSaturatedHex()
         }} />
         <div className="pointer" style={{
-          top: (100 - this.props.l * 100) + '%',
-          left: this.props.s * 100 + '%'
+          top: (100 - store.value * 100) + '%',
+          left: store.saturation * 100 + '%'
         }} />
       </div>
       /* jshint ignore: end */

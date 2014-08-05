@@ -1,23 +1,13 @@
 var React = require('react');
-var tiny = require('tinycolor2');
+
+var store = require('../store');
 
 var Details = React.createClass({
 
-  propTypes: {
-    h: React.PropTypes.number.isRequired,
-    s: React.PropTypes.number.isRequired,
-    l: React.PropTypes.number.isRequired,
-    color: React.PropTypes.instanceOf(tiny).isRequired
-  },
-
   render: function () {
-    var rgb = this.props.color.toRgb();
-    var hex = this.props.color.toHex();
-    var hsl = {
-      h: Math.round(this.props.h * 360),
-      s: Math.round(this.props.s * 100),
-      l: Math.round(this.props.l * 100)
-    };
+    var rgb = store.toRgb();
+    var hex = store.toHex();
+    var hsv = store.toHsv();
 
     return (
       /* jshint ignore: start */
@@ -27,10 +17,10 @@ var Details = React.createClass({
           <li><label>G:</label> <span className="value">{ rgb.g }</span></li>
           <li><label>B:</label> <span className="value">{ rgb.b }</span></li>
         </ul>
-        <ul className="hsl">
-          <li><label>H:</label> <span className="value">{ hsl.h }</span></li>
-          <li><label>S:</label> <span className="value">{ hsl.s }</span></li>
-          <li><label>L:</label> <span className="value">{ hsl.l }</span></li>
+        <ul className="hsv">
+          <li><label>H:</label> <span className="value">{ hsv.h }</span></li>
+          <li><label>S:</label> <span className="value">{ hsv.s }</span></li>
+          <li><label>B:</label> <span className="value">{ hsv.v }</span></li>
         </ul>
         <ul className="hex">
           <li><label>#</label> <span className="value">{ hex }</span></li>

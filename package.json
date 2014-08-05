@@ -30,8 +30,9 @@
   },
   "homepage": "https://github.com/stayradiated/react-colorpicker",
   "dependencies": {
+    "c0lor": "^0.1.0",
     "react": "^0.11.1",
-    "tinycolor2": "^1.0.0"
+    "reflux": "git://github.com/bripkens/reflux#remove-shim"
   },
   "devDependencies": {
     "browserify": "^5.9.1",
