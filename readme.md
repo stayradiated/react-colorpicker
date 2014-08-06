@@ -18,8 +18,10 @@ var colorpicker = new ColorPicker({
     color: '#c0ffee',
     onChange: function (color) {
         // fired whenever user changes color
-        // color is a tinycolor instance
-        console.log(color.toHex());
+        // color is a Color instance
+        // https://github.com/harthur/color
+
+        console.log(color.hexString());
     }
 });
 

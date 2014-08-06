@@ -14,31 +14,37 @@ var ColorPicker = React.createClass({
   mixins: [Reflux.ListenerMixin],
 
   componentDidMount: function () {
-    this.listenTo(store, this.forceUpdate);
+    this.listenTo(store, this.onChange);
+  },
+
+  onChange: function () {
+    this.forceUpdate();
   },
 
   render: function () {
+    var rawHsv = store.toRawHsv();
+
     return (
       /* jshint ignore: start */
       <div className="colorpicker">
         <div className="light-slider">
           <Slider
             vertical={true}
-            value={store.value}
+            value={rawHsv.v}
             onChange={actions.setValue}
           />
         </div>
         <div className="sat-slider">
           <Slider
             vertical={false}
-            value={store.saturation}
+            value={rawHsv.s}
             onChange={actions.setSaturation}
           />
         </div>
         <div className="hue-slider">
           <Slider
             vertical={true}
-            value={store.hue}
+            value={rawHsv.h}
             onChange={actions.setHue}
           />
         </div>

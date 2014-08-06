@@ -1,15 +1,15 @@
 body {
   background: #eee;
+  font-family: monospace;
+  font-size: 20px;
 }
 
 #container {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  margin-top: -200px;
-  margin-left: -400px;
-  width: 800px;
-  height: 400px;
+  top: 20%;
+  left: 10%;
+  bottom: 20%;
+  right: 10%;
   box-shadow: 0 0 30px rgba(0,0,0,0.3);
 }
 

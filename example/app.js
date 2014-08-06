@@ -3,5 +3,13 @@ var ColorPicker = require('../lib/index');
 
 document.addEventListener('DOMContentLoaded', function () {
   var container = document.getElementById('container');
-  React.renderComponent(<ColorPicker />, container);
+
+  var colorpicker = new ColorPicker({
+    color: '#408080',
+    onChange: function (color) {
+      // do something with color
+    }
+  });
+
+  React.renderComponent(colorpicker, container);
 });

@@ -48,6 +48,7 @@ var Map = React.createClass({
   },
 
   render: function () {
+    var rawHsv = store.toRawHsv();
     var lightness = store.toLum();
 
     var classes = React.addons.classSet({
@@ -64,8 +65,8 @@ var Map = React.createClass({
           backgroundColor: store.toHue()
         }} />
         <div className="pointer" style={{
-          top: (100 - store.value * 100) + '%',
-          left: store.saturation * 100 + '%'
+          top: (100 - rawHsv.v * 100) + '%',
+          left: rawHsv.s * 100 + '%'
         }} />
       </div>
       /* jshint ignore: end */
