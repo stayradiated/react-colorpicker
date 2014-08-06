@@ -1,6 +1,6 @@
 {
   "name": "react-colorpicker",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Colorpicker for React",
   "main": "pkg/index.js",
   "directories": {
@@ -18,9 +18,8 @@
     "color",
     "colour",
     "picker",
-    "husl",
     "rgb",
-    "hsl",
+    "hsv",
     "hex"
   ],
   "author": "George Czabania",
@@ -30,7 +29,7 @@
   },
   "homepage": "https://github.com/stayradiated/react-colorpicker",
   "dependencies": {
-    "c0lor": "^0.1.0",
+    "color": "^0.7.1",
     "react": "^0.11.1",
     "reflux": "git://github.com/bripkens/reflux#remove-shim"
   },

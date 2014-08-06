@@ -1,4 +1,4 @@
-var React = require('react');
+var React = require('react/addons');
 
 var store = require('../store');
 var actions = require('../actions');
@@ -48,14 +48,20 @@ var Map = React.createClass({
   },
 
   render: function () {
-    var lightness = store.value >= 1 ? 0.99 : store.value;
-    var darkLight = lightness < 0.5 ? 'dark' : 'light';
+    var lightness = store.toLum();
+
+    var classes = React.addons.classSet({
+      map: true,
+      dark: lightness <= 0.5,
+      light: lightness > 0.5,
+      active: this.state.active
+    });
 
     return (
       /* jshint ignore: start */
-      <div className={'map ' + darkLight} onMouseDown={this.handleMouseDown}>
+      <div className={classes} onMouseDown={this.handleMouseDown}>
         <div className="background" style={{
-          backgroundColor: '#' + store.toSaturatedHex()
+          backgroundColor: store.toHue()
         }} />
         <div className="pointer" style={{
           top: (100 - store.value * 100) + '%',

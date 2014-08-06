@@ -8,7 +8,7 @@ var Sample = React.createClass({
     return (
       /* jshint ignore: start */
       <div className="sample" style={{
-        background: '#' + store.toHex()
+        background: store.toHex()
       }} />
       /* jshint ignore: end */
     );
