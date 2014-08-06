@@ -31,7 +31,7 @@
   "dependencies": {
     "color": "^0.7.1",
     "react": "^0.11.1",
-    "reflux": "git://github.com/bripkens/reflux#remove-shim"
+    "reflux": "^0.1.6"
   },
   "devDependencies": {
     "browserify": "^5.9.1",
