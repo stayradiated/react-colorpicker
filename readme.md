@@ -12,7 +12,7 @@ npm install --save react-colorpicker
 
 You will also need to add some css styles.
 
-See the (example stylesheet)[example/colorpicker.scss] for ideas.
+See the [example stylesheet](example/colorpicker.scss) for ideas.
 
 ## Example Usage
 
