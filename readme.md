@@ -10,7 +10,11 @@ Uses the `Colr` library: https://github.com/stayradiated/colr
 npm install --save react-colorpicker
 ```
 
-## Usage
+You will also need to add some css styles.
+
+See the (example stylesheet)[example/colorpicker.scss] for ideas.
+
+## Example Usage
 
 ```javascript
 var React = require('react');
@@ -19,8 +23,7 @@ var ColorPicker = require('react-colorpicker');
 var colorpicker = new ColorPicker({
     color: '#c0ffee',
     onChange: function (color) {
-        // fired whenever user changes color
-
+        // called whenever the color is changed
         console.log(color.hexString());
     }
 });
