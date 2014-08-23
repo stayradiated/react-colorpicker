@@ -2,6 +2,8 @@
 
 > A simple colorpicker written using React.
 
+Uses the `Colr` library: https://github.com/stayradiated/colr
+
 ## Installation
 
 ```
@@ -18,8 +20,6 @@ var colorpicker = new ColorPicker({
     color: '#c0ffee',
     onChange: function (color) {
         // fired whenever user changes color
-        // color is a Color instance
-        // https://github.com/harthur/color
 
         console.log(color.hexString());
     }
