@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var colorpicker = new ColorPicker({
     color: '#408080',
     onChange: function (color) {
-      // do something with color
+      console.log(color.toHex());
     }
   });
 
