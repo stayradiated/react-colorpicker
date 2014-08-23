@@ -17,152 +17,155 @@ body {
 .colorpicker {
   color: #fff;
   background: #333;
+  display: block;
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 100%;
-  border: 20px solid #333; }
-
-.map {
-  position: absolute;
-  top: 10%;
-  bottom: 0;
-  left: 10%;
-  width: 40%;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-          user-select: none;
-  overflow: hidden; }
-  .map.active {
-    cursor: none; }
-  .map.dark .pointer {
-    border-color: #fff; }
-  .map.light .pointer {
-    border-color: #000; }
-  .map .pointer {
-    position: absolute;
-    top: 20%;
-    left: 20%;
-    width: 10px;
-    height: 10px;
-    margin-left: -5px;
-    margin-top: -5px;
-    border-radius: 100%;
-    border: 1px solid #000; }
-  .map .background {
-    top: 0;
-    left: 0;
-    position: absolute;
-    height: 100%;
-    width: 100%; }
-  .map .background:before, .map .background:after {
+  left: 0;
+  right: 0; }
+  .colorpicker .map {
     display: block;
-    content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0; }
-  .map .background:after {
-    background: -webkit-linear-gradient(top, rgba(0, 0, 0, 0) 0%, #000000 100%);
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, #000000 100%); }
-  .map .background:before {
-    background: -webkit-linear-gradient(left, #ffffff 0%, rgba(255, 255, 255, 0) 100%);
-    background: linear-gradient(to right, #ffffff 0%, rgba(255, 255, 255, 0) 100%); }
-
-.sample {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 20%;
-  height: 50%;
-  background: #bcb83e; }
-
-.slider {
-  position: absolute;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-          user-select: none; }
-  .slider.vertical {
-    top: 0;
-    bottom: 0;
-    left: 50%;
-    width: 10px;
-    cursor: ns-resize; }
-    .slider.vertical .track {
+    top: 25px;
+    bottom: 56px;
+    left: 56px;
+    right: 181px;
+    position: absolute;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
+    overflow: hidden; }
+    .colorpicker .map.active {
+      cursor: none; }
+    .colorpicker .map.dark .pointer {
+      border-color: #fff; }
+    .colorpicker .map.light .pointer {
+      border-color: #000; }
+    .colorpicker .map .pointer {
       position: absolute;
+      width: 10px;
+      height: 10px;
+      margin-left: -5px;
+      margin-top: -5px;
+      border-radius: 100%;
+      border: 1px solid #000; }
+    .colorpicker .map .background {
+      top: 0;
+      left: 0;
+      position: absolute;
+      height: 100%;
+      width: 100%; }
+    .colorpicker .map .background:before, .colorpicker .map .background:after {
+      display: block;
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0; }
+    .colorpicker .map .background:after {
+      background: -webkit-linear-gradient(top, rgba(0, 0, 0, 0) 0%, #000000 100%);
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, #000000 100%); }
+    .colorpicker .map .background:before {
+      background: -webkit-linear-gradient(left, #ffffff 0%, rgba(255, 255, 255, 0) 100%);
+      background: linear-gradient(to right, #ffffff 0%, rgba(255, 255, 255, 0) 100%); }
+  .colorpicker .slider {
+    position: absolute;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none; }
+    .colorpicker .slider.vertical {
       top: 0;
       bottom: 0;
       left: 50%;
-      width: 6px;
-      margin-left: -3px; }
-  .slider.horizontal {
-    left: 0;
-    right: 0;
-    top: 50%;
-    height: 10px;
-    cursor: ew-resize; }
-    .slider.horizontal .track {
-      position: absolute;
+      width: 10px;
+      cursor: ns-resize; }
+      .colorpicker .slider.vertical .track {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        width: 6px;
+        margin-left: -3px; }
+    .colorpicker .slider.horizontal {
       left: 0;
       right: 0;
       top: 50%;
-      height: 6px;
-      margin-top: -3px; }
-  .slider .track {
-    border-radius: 3px;
-    background: #888; }
-  .slider .pointer {
+      height: 10px;
+      cursor: ew-resize; }
+      .colorpicker .slider.horizontal .track {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        height: 6px;
+        margin-top: -3px; }
+    .colorpicker .slider .track {
+      border-radius: 3px;
+      background: #888; }
+    .colorpicker .slider .pointer {
+      position: absolute;
+      bottom: 50%;
+      left: 50%;
+      width: 14px;
+      height: 14px;
+      background: #ddd;
+      margin-left: -7px;
+      margin-bottom: -7px;
+      border-radius: 14px; }
+  .colorpicker .sat-slider {
+    display: block;
     position: absolute;
-    bottom: 50%;
-    left: 50%;
-    width: 14px;
-    height: 14px;
-    background: #ddd;
-    margin-left: -7px;
-    margin-bottom: -7px;
-    border-radius: 14px; }
-
-.sat-slider {
-  position: absolute;
-  top: 0;
-  left: 10%;
-  height: 10%;
-  width: 40%; }
-
-.light-slider {
-  position: absolute;
-  top: 10%;
-  bottom: 0;
-  left: 0;
-  width: 10%; }
-
-.hue-slider {
-  position: absolute;
-  top: 10%;
-  bottom: 0;
-  left: 50%;
-  width: 10%; }
-  .hue-slider .track {
-    background: -webkit-linear-gradient(top, #FF0000 0%, #FF0099 10%, #CD00FF 20%, #3200FF 30%, #0066FF 40%, #00FFFD 50%, #00FF66 60%, #35FF00 70%, #CDFF00 80%, #FF9900 90%, #FF0000 100%);
-    background: linear-gradient(to bottom, #FF0000 0%, #FF0099 10%, #CD00FF 20%, #3200FF 30%, #0066FF 40%, #00FFFD 50%, #00FF66 60%, #35FF00 70%, #CDFF00 80%, #FF9900 90%, #FF0000 100%); }
-
-.details {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 60%;
-  width: 30%; }
-  .details ul {
-    padding: 0;
-    margin: 0 0 20px 0; }
-    .details ul li {
-      list-style-type: none; }
-  .details label {
-    color: #888; }
-  .details .value {
-    color: #ccc; }
-  .details .hex {
-    text-transform: uppercase; }
+    top: auto;
+    bottom: 33px;
+    left: 56px;
+    right: 181px; }
+  .colorpicker .light-slider {
+    display: block;
+    position: absolute;
+    top: 25px;
+    bottom: 56px;
+    left: 23px;
+    right: auto; }
+  .colorpicker .hue-slider {
+    display: block;
+    position: absolute;
+    top: 25px;
+    bottom: 56px;
+    left: auto;
+    right: 158px; }
+    .colorpicker .hue-slider .track {
+      background: -webkit-linear-gradient(top, #FF0000 0%, #FF0099 10%, #CD00FF 20%, #3200FF 30%, #0066FF 40%, #00FFFD 50%, #00FF66 60%, #35FF00 70%, #CDFF00 80%, #FF9900 90%, #FF0000 100%);
+      background: linear-gradient(to bottom, #FF0000 0%, #FF0099 10%, #CD00FF 20%, #3200FF 30%, #0066FF 40%, #00FFFD 50%, #00FF66 60%, #35FF00 70%, #CDFF00 80%, #FF9900 90%, #FF0000 100%); }
+  .colorpicker .sample {
+    display: block;
+    position: absolute;
+    top: 25px;
+    bottom: auto;
+    left: auto;
+    right: 25px;
+    width: 100px;
+    height: 100px;
+    background: #bcb83e; }
+  .colorpicker .details {
+    display: block;
+    position: absolute;
+    top: 140px;
+    bottom: 0;
+    left: auto;
+    right: 25px;
+    width: 100px;
+    overflow: hidden; }
+    .colorpicker .details ul {
+      padding: 0;
+      margin: 0 0 20px 0; }
+      .colorpicker .details ul li {
+        list-style-type: none; }
+    .colorpicker .details label {
+      color: #888; }
+    .colorpicker .details .value {
+      color: #ccc; }
+    .colorpicker .details .hex {
+      text-transform: uppercase; }
