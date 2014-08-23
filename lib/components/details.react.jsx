@@ -7,7 +7,11 @@ var Details = React.createClass({
   render: function () {
     var rgb = store.toRgb();
     var hex = store.toHex();
-    var hsv = store.toHsv();
+    var hsv = store.toRawHsv();
+
+    hsv.h = Math.round(hsv.h * 360);
+    hsv.s = Math.round(hsv.s * 100);
+    hsv.v = Math.round(hsv.v * 100);
 
     return (
       /* jshint ignore: start */
@@ -29,15 +33,15 @@ var Details = React.createClass({
         <ul className="hsv">
           <li>
             <label>H:</label>
-            <span className="value">{ hsv.h }</span>
+            <span className="value">{ hsv.h }°</span>
           </li>
           <li>
             <label>S:</label>
-            <span className="value">{ hsv.s }</span>
+            <span className="value">{ hsv.s }%</span>
           </li>
           <li>
             <label>B:</label>
-            <span className="value">{ hsv.v }</span>
+            <span className="value">{ hsv.v }%</span>
           </li>
         </ul>
         <ul className="hex">

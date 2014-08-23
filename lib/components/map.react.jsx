@@ -49,12 +49,12 @@ var Map = React.createClass({
 
   render: function () {
     var rawHsv = store.toRawHsv();
-    var lightness = store.toLum();
+    var luminosity = store.toLum();
 
     var classes = React.addons.classSet({
       map: true,
-      dark: lightness <= 0.5,
-      light: lightness > 0.5,
+      dark: luminosity <= 0.5,
+      light: luminosity > 0.5,
       active: this.state.active
     });
 
