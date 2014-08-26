@@ -6,16 +6,16 @@ document.addEventListener('DOMContentLoaded', function () {
   var container = document.getElementById('container');
 
   var colorpicker = new ColorPicker({
-    color: '#408080',
+    color: '#bada55',
     onChange: function (color) {
-      // do something with color
+      console.log(color.toHex());
     }
   });
 
   React.renderComponent(colorpicker, container);
 });
 
-},{"../lib/index":"/home/stayrad/projects/react-colorpicker/lib/index.js","react":"/home/stayrad/projects/react-colorpicker/node_modules/react/react.js"}],"/home/stayrad/projects/react-colorpicker/lib/actions.js":[function(require,module,exports){
+},{"../lib/index":"/Volumes/Home/Projects/react-colorpicker/lib/index.js","react":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/react.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/actions.js":[function(require,module,exports){
 var Reflux = require('reflux');
 
 var actions = Reflux.createActions([
@@ -26,7 +26,7 @@ var actions = Reflux.createActions([
 
 module.exports = actions;
 
-},{"reflux":"/home/stayrad/projects/react-colorpicker/node_modules/reflux/src/index.js"}],"/home/stayrad/projects/react-colorpicker/lib/components/colorpicker.react.jsx":[function(require,module,exports){
+},{"reflux":"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/index.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/components/colorpicker.react.jsx":[function(require,module,exports){
 /** @jsx React.DOM */var React = require('react');
 var Reflux = require('reflux');
 
@@ -89,7 +89,7 @@ var ColorPicker = React.createClass({displayName: 'ColorPicker',
 
 module.exports = ColorPicker;
 
-},{"../actions":"/home/stayrad/projects/react-colorpicker/lib/actions.js","../store":"/home/stayrad/projects/react-colorpicker/lib/store.js","./details.react":"/home/stayrad/projects/react-colorpicker/lib/components/details.react.jsx","./map.react":"/home/stayrad/projects/react-colorpicker/lib/components/map.react.jsx","./sample.react":"/home/stayrad/projects/react-colorpicker/lib/components/sample.react.jsx","./slider.react":"/home/stayrad/projects/react-colorpicker/lib/components/slider.react.jsx","react":"/home/stayrad/projects/react-colorpicker/node_modules/react/react.js","reflux":"/home/stayrad/projects/react-colorpicker/node_modules/reflux/src/index.js"}],"/home/stayrad/projects/react-colorpicker/lib/components/details.react.jsx":[function(require,module,exports){
+},{"../actions":"/Volumes/Home/Projects/react-colorpicker/lib/actions.js","../store":"/Volumes/Home/Projects/react-colorpicker/lib/store.js","./details.react":"/Volumes/Home/Projects/react-colorpicker/lib/components/details.react.jsx","./map.react":"/Volumes/Home/Projects/react-colorpicker/lib/components/map.react.jsx","./sample.react":"/Volumes/Home/Projects/react-colorpicker/lib/components/sample.react.jsx","./slider.react":"/Volumes/Home/Projects/react-colorpicker/lib/components/slider.react.jsx","react":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/react.js","reflux":"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/index.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/components/details.react.jsx":[function(require,module,exports){
 /** @jsx React.DOM */var React = require('react');
 
 var store = require('../store');
@@ -149,13 +149,16 @@ var Details = React.createClass({displayName: 'Details',
 
 module.exports = Details;
 
-},{"../store":"/home/stayrad/projects/react-colorpicker/lib/store.js","react":"/home/stayrad/projects/react-colorpicker/node_modules/react/react.js"}],"/home/stayrad/projects/react-colorpicker/lib/components/map.react.jsx":[function(require,module,exports){
-/** @jsx React.DOM */var React = require('react/addons');
+},{"../store":"/Volumes/Home/Projects/react-colorpicker/lib/store.js","react":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/react.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/components/draggable.react.jsx":[function(require,module,exports){
+/** @jsx React.DOM */var React = require("react");
 
-var store = require('../store');
-var actions = require('../actions');
+function noop() {}
 
-var Map = React.createClass({displayName: 'Map',
+var DraggableMixin = {
+
+  propTypes: {
+    onChange : React.PropTypes.func
+  },
 
   getInitialState: function () {
     return {
@@ -163,40 +166,66 @@ var Map = React.createClass({displayName: 'Map',
     };
   },
 
-  componentDidMount: function () {
-    document.addEventListener('mousemove', this.handleMouseMove);
-    document.addEventListener('mouseup', this.handleMouseUp);
+  getDefaultProps: function () {
+    return {
+      onChange: noop
+    };
+  },
+
+  componentDidMount: function() {
+    document.addEventListener("mousemove", this.handleMouseMove);
+    document.addEventListener("mouseup", this.handleMouseUp);
+  },
+
+  componentWillUnmount: function() {
+    document.removeEventListener("mousemove", this.handleMouseMove);
+    document.removeEventListener("mouseup", this.handleMouseUp);
   },
 
   handleMouseDown: function (e) {
-    e.preventDefault();
-    this.setState({
-      active: true
-    });
+    this.setState({ active: true });
+    this.updatePosition(e.clientX, e.clientY);
   },
 
   handleMouseMove: function (e) {
-    if (! this.state.active) return;
-    var el = this.getDOMNode();
-    var rect = el.getBoundingClientRect();
-    var x = (e.clientX - rect.left) / rect.width;
-    var y = (rect.bottom - e.clientY) / rect.height;
-
-    if (x < 0) x = 0;
-    else if (x > 1) x = 1;
-
-    if (y < 0) y = 0;
-    else if (y > 1) y = 1;
-
-    actions.setSaturation(x);
-    actions.setValue(y);
+    if (this.state.active) {
+      this.updatePosition(e.clientX, e.clientY);
+    }
   },
 
   handleMouseUp: function () {
-    if (! this.state.active) return;
-    this.setState({
-      active: false
-    });
+    if(this.state.active) {
+      this.setState({ active: false });
+    }
+  }
+
+};
+
+module.exports = DraggableMixin;
+
+},{"react":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/react.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/components/map.react.jsx":[function(require,module,exports){
+/** @jsx React.DOM */var React = require('react/addons');
+
+var clamp = require('../util/clamp');
+var store = require('../store');
+var actions = require('../actions');
+var DraggableMixin = require('./draggable.react');
+
+var Map = React.createClass({displayName: 'Map',
+
+  mixins: [DraggableMixin],
+
+  updatePosition: function (clientX, clientY) {
+    var el = this.getDOMNode();
+    var rect = el.getBoundingClientRect();
+    var x = (clientX - rect.left) / rect.width;
+    var y = (rect.bottom - clientY) / rect.height;
+
+    x = clamp(x, 0, 1);
+    y = clamp(y, 0, 1);
+
+    actions.setSaturation(x);
+    actions.setValue(y);
   },
 
   render: function () {
@@ -229,19 +258,28 @@ var Map = React.createClass({displayName: 'Map',
 
 module.exports = Map;
 
-},{"../actions":"/home/stayrad/projects/react-colorpicker/lib/actions.js","../store":"/home/stayrad/projects/react-colorpicker/lib/store.js","react/addons":"/home/stayrad/projects/react-colorpicker/node_modules/react/addons.js"}],"/home/stayrad/projects/react-colorpicker/lib/components/sample.react.jsx":[function(require,module,exports){
+},{"../actions":"/Volumes/Home/Projects/react-colorpicker/lib/actions.js","../store":"/Volumes/Home/Projects/react-colorpicker/lib/store.js","../util/clamp":"/Volumes/Home/Projects/react-colorpicker/lib/util/clamp.js","./draggable.react":"/Volumes/Home/Projects/react-colorpicker/lib/components/draggable.react.jsx","react/addons":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/addons.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/components/sample.react.jsx":[function(require,module,exports){
 /** @jsx React.DOM */var React = require('react');
 
 var store = require('../store');
 
 var Sample = React.createClass({displayName: 'Sample',
 
+  loadOriginal: function () {
+    store.load(store.original());
+  },
+
   render: function () {
     return (
       /* jshint ignore: start */
-      React.DOM.div({className: "sample", style: {
-        background: store.toHex()
-      }})
+      React.DOM.div({className: "sample"}, 
+        React.DOM.div({className: "current", style: {
+          background: store.toHex()
+        }}), 
+        React.DOM.div({className: "original", style: {
+          background: store.original().toHex()
+        }, onClick: this.loadOriginal})
+      )
       /* jshint ignore: end */
     );
   }
@@ -250,75 +288,34 @@ var Sample = React.createClass({displayName: 'Sample',
 
 module.exports = Sample;
 
-},{"../store":"/home/stayrad/projects/react-colorpicker/lib/store.js","react":"/home/stayrad/projects/react-colorpicker/node_modules/react/react.js"}],"/home/stayrad/projects/react-colorpicker/lib/components/slider.react.jsx":[function(require,module,exports){
+},{"../store":"/Volumes/Home/Projects/react-colorpicker/lib/store.js","react":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/react.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/components/slider.react.jsx":[function(require,module,exports){
 /** @jsx React.DOM */var React = require('react/addons');
 
+var clamp = require('../util/clamp');
+var DraggableMixin = require('./draggable.react');
+
 var Slider = React.createClass({displayName: 'Slider',
+
+  mixins: [DraggableMixin],
 
   propTypes: {
     vertical: React.PropTypes.bool.isRequired,
     value: React.PropTypes.number.isRequired,
-    onChange: React.PropTypes.func
   },
 
-  getDefaultProps: function () {
-    return {
-      onChange: function () {}
-    };
-  },
-
-  getInitialState: function () {
-    return {
-      active: false
-    };
-  },
-
-  componentDidMount: function () {
-    document.addEventListener('mousemove', this.handleMouseMove);
-    document.addEventListener('mouseup', this.handleMouseUp);
-  },
-
-  componentWillUnmount: function () {
-    document.removeEventListener('mousemove', this.handleMouseMove);
-    document.removeEventListener('mouseup', this.handleMouseUp);
-  },
-
-  handleMouseDown: function () {
-    this.setState({
-      active: true
-    });
-  },
-
-  handleMouseMove: function (e) {
-    if (! this.state.active) return;
+  updatePosition: function (clientX, clientY) {
     var el = this.getDOMNode();
     var rect = el.getBoundingClientRect();
 
     var value;
     if (this.props.vertical) {
-      value = (rect.bottom - e.clientY) / rect.height;
+      value = (rect.bottom - clientY) / rect.height;
     } else {
-      value = (e.clientX - rect.left) / rect.width;
+      value = (clientX - rect.left) / rect.width;
     }
 
-    if (value < 0) value = 0;
-    else if (value > 1) value = 1;
-
+    value = clamp(value, 0, 1);
     this.props.onChange(value);
-  },
-
-  handleMouseUp: function () {
-    if (! this.state.active) return;
-    this.setState({
-      active: false
-    });
-  },
-
-  getCss: function () {
-    var obj = {};
-    var attr = this.props.vertical ? 'bottom' : 'left';
-    obj[attr] = this.props.value * 100 + '%';
-    return obj;
   },
 
   render: function () {
@@ -328,11 +325,15 @@ var Slider = React.createClass({displayName: 'Slider',
       horizontal: ! this.props.vertical
     });
 
+    var styles = {};
+    var attr = this.props.vertical ? 'bottom' : 'left';
+    styles[attr] = this.props.value * 100 + '%';
+
     return (
       /* jshint ignore: start */
       React.DOM.div({className: classes, onMouseDown: this.handleMouseDown}, 
         React.DOM.div({className: "track"}), 
-        React.DOM.div({className: "pointer", style: this.getCss()})
+        React.DOM.div({className: "pointer", style: styles})
       )
       /* jshint ignore: end */
     );
@@ -342,13 +343,24 @@ var Slider = React.createClass({displayName: 'Slider',
 
 module.exports = Slider;
 
-},{"react/addons":"/home/stayrad/projects/react-colorpicker/node_modules/react/addons.js"}],"/home/stayrad/projects/react-colorpicker/lib/index.js":[function(require,module,exports){
+},{"../util/clamp":"/Volumes/Home/Projects/react-colorpicker/lib/util/clamp.js","./draggable.react":"/Volumes/Home/Projects/react-colorpicker/lib/components/draggable.react.jsx","react/addons":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/addons.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/index.js":[function(require,module,exports){
 var React = require('react');
 var Reflux = require('reflux');
 var Colr = require('colr');
 
 var store = require('./store');
 var ColorPicker = require('./components/colorpicker.react');
+
+var throttle = function (fn) {
+  var last = [-1,-1,-1];
+  return function (color) {
+    var rgb  = color.toRgbArray();
+    if (rgb[0] != last[0] || rgb[1] != last[1] || rgb[2] != last[2]) {
+      fn(color);
+      last = rgb;
+    }
+  };
+};
 
 var App = React.createClass({
 
@@ -371,8 +383,9 @@ var App = React.createClass({
   },
  
   componentDidMount: function () {
+    console.log('mounting component', this.props.color);
     store.load(Colr.fromHex(this.props.color));
-    this.listenTo(store, this.props.onChange);
+    this.listenTo(store, throttle(this.props.onChange));
   },
 
   render: function () {
@@ -383,7 +396,9 @@ var App = React.createClass({
 
 module.exports = App;
 
-},{"./components/colorpicker.react":"/home/stayrad/projects/react-colorpicker/lib/components/colorpicker.react.jsx","./store":"/home/stayrad/projects/react-colorpicker/lib/store.js","colr":"/home/stayrad/projects/react-colorpicker/node_modules/colr/index.js","react":"/home/stayrad/projects/react-colorpicker/node_modules/react/react.js","reflux":"/home/stayrad/projects/react-colorpicker/node_modules/reflux/src/index.js"}],"/home/stayrad/projects/react-colorpicker/lib/store.js":[function(require,module,exports){
+},{"./components/colorpicker.react":"/Volumes/Home/Projects/react-colorpicker/lib/components/colorpicker.react.jsx","./store":"/Volumes/Home/Projects/react-colorpicker/lib/store.js","colr":"/Volumes/Home/Projects/react-colorpicker/node_modules/colr/index.js","react":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/react.js","reflux":"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/index.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/store.js":[function(require,module,exports){
+'use strict';
+
 var Reflux = require('reflux');
 var Colr = require('colr');
 
@@ -391,6 +406,7 @@ var actions = require('./actions');
 
 var state = Colr.fromRgb(0,0,0);
 var rawHsv = { h: 0, s: 0, v: 0 };
+var original = state.clone();
 
 var store = Reflux.createStore({
 
@@ -403,6 +419,7 @@ var store = Reflux.createStore({
   load: function (color) {
     // overwrite state
     state = color;
+    original = color.clone();
     rawHsv = this.toScaledHsv();
     this.trigger(state);
   },
@@ -445,7 +462,7 @@ var store = Reflux.createStore({
       h: rawHsv.h,
       s: rawHsv.s,
       v: rawHsv.v,
-    }
+    };
   },
 
   toRgb: function () {
@@ -462,13 +479,24 @@ var store = Reflux.createStore({
 
   toLum: function () {
     return state.toGrayscale() / 255;
-  }
+  },
+
+  original: function () {
+    return original;
+  },
 
 });
 
 module.exports = store;
 
-},{"./actions":"/home/stayrad/projects/react-colorpicker/lib/actions.js","colr":"/home/stayrad/projects/react-colorpicker/node_modules/colr/index.js","reflux":"/home/stayrad/projects/react-colorpicker/node_modules/reflux/src/index.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js":[function(require,module,exports){
+},{"./actions":"/Volumes/Home/Projects/react-colorpicker/lib/actions.js","colr":"/Volumes/Home/Projects/react-colorpicker/node_modules/colr/index.js","reflux":"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/index.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/util/clamp.js":[function(require,module,exports){
+function clamp (val, min, max) {
+  return val < min ? min : (val > max ? max : val);
+}
+
+module.exports = clamp;
+
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js":[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -533,7 +561,7 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/colr/index.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/colr/index.js":[function(require,module,exports){
 (function () {
   'use strict';
 
@@ -904,10 +932,10 @@ process.chdir = function (dir) {
 
 }());
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/react/addons.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/addons.js":[function(require,module,exports){
 module.exports = require('./lib/ReactWithAddons');
 
-},{"./lib/ReactWithAddons":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactWithAddons.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/AutoFocusMixin.js":[function(require,module,exports){
+},{"./lib/ReactWithAddons":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactWithAddons.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/AutoFocusMixin.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -941,7 +969,7 @@ var AutoFocusMixin = {
 
 module.exports = AutoFocusMixin;
 
-},{"./focusNode":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/focusNode.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/BeforeInputEventPlugin.js":[function(require,module,exports){
+},{"./focusNode":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/focusNode.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/BeforeInputEventPlugin.js":[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  *
@@ -1165,7 +1193,7 @@ var BeforeInputEventPlugin = {
 
 module.exports = BeforeInputEventPlugin;
 
-},{"./EventConstants":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventConstants.js","./EventPropagators":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventPropagators.js","./ExecutionEnvironment":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js","./SyntheticInputEvent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticInputEvent.js","./keyOf":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/keyOf.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/CSSCore.js":[function(require,module,exports){
+},{"./EventConstants":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventConstants.js","./EventPropagators":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventPropagators.js","./ExecutionEnvironment":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js","./SyntheticInputEvent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticInputEvent.js","./keyOf":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/keyOf.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/CSSCore.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -1284,7 +1312,7 @@ var CSSCore = {
 module.exports = CSSCore;
 
 }).call(this,require('_process'))
-},{"./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/CSSProperty.js":[function(require,module,exports){
+},{"./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/CSSProperty.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -1407,7 +1435,7 @@ var CSSProperty = {
 
 module.exports = CSSProperty;
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/CSSPropertyOperations.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/CSSPropertyOperations.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -1506,7 +1534,7 @@ var CSSPropertyOperations = {
 
 module.exports = CSSPropertyOperations;
 
-},{"./CSSProperty":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/CSSProperty.js","./dangerousStyleValue":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/dangerousStyleValue.js","./hyphenateStyleName":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/hyphenateStyleName.js","./memoizeStringOnly":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/memoizeStringOnly.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/CallbackQueue.js":[function(require,module,exports){
+},{"./CSSProperty":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/CSSProperty.js","./dangerousStyleValue":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/dangerousStyleValue.js","./hyphenateStyleName":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/hyphenateStyleName.js","./memoizeStringOnly":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/memoizeStringOnly.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/CallbackQueue.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -1613,7 +1641,7 @@ PooledClass.addPoolingTo(CallbackQueue);
 module.exports = CallbackQueue;
 
 }).call(this,require('_process'))
-},{"./PooledClass":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/PooledClass.js","./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","./mixInto":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/mixInto.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ChangeEventPlugin.js":[function(require,module,exports){
+},{"./PooledClass":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/PooledClass.js","./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","./mixInto":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/mixInto.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ChangeEventPlugin.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -2002,7 +2030,7 @@ var ChangeEventPlugin = {
 
 module.exports = ChangeEventPlugin;
 
-},{"./EventConstants":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventConstants.js","./EventPluginHub":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventPluginHub.js","./EventPropagators":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventPropagators.js","./ExecutionEnvironment":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js","./ReactUpdates":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactUpdates.js","./SyntheticEvent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticEvent.js","./isEventSupported":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/isEventSupported.js","./isTextInputElement":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/isTextInputElement.js","./keyOf":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/keyOf.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ClientReactRootIndex.js":[function(require,module,exports){
+},{"./EventConstants":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventConstants.js","./EventPluginHub":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventPluginHub.js","./EventPropagators":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventPropagators.js","./ExecutionEnvironment":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js","./ReactUpdates":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactUpdates.js","./SyntheticEvent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticEvent.js","./isEventSupported":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/isEventSupported.js","./isTextInputElement":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/isTextInputElement.js","./keyOf":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/keyOf.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ClientReactRootIndex.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -2034,7 +2062,7 @@ var ClientReactRootIndex = {
 
 module.exports = ClientReactRootIndex;
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/CompositionEventPlugin.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/CompositionEventPlugin.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -2300,7 +2328,7 @@ var CompositionEventPlugin = {
 
 module.exports = CompositionEventPlugin;
 
-},{"./EventConstants":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventConstants.js","./EventPropagators":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventPropagators.js","./ExecutionEnvironment":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js","./ReactInputSelection":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactInputSelection.js","./SyntheticCompositionEvent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticCompositionEvent.js","./getTextContentAccessor":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/getTextContentAccessor.js","./keyOf":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/keyOf.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/DOMChildrenOperations.js":[function(require,module,exports){
+},{"./EventConstants":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventConstants.js","./EventPropagators":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventPropagators.js","./ExecutionEnvironment":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js","./ReactInputSelection":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactInputSelection.js","./SyntheticCompositionEvent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticCompositionEvent.js","./getTextContentAccessor":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/getTextContentAccessor.js","./keyOf":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/keyOf.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/DOMChildrenOperations.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -2482,7 +2510,7 @@ var DOMChildrenOperations = {
 module.exports = DOMChildrenOperations;
 
 }).call(this,require('_process'))
-},{"./Danger":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/Danger.js","./ReactMultiChildUpdateTypes":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactMultiChildUpdateTypes.js","./getTextContentAccessor":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/getTextContentAccessor.js","./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/DOMProperty.js":[function(require,module,exports){
+},{"./Danger":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/Danger.js","./ReactMultiChildUpdateTypes":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactMultiChildUpdateTypes.js","./getTextContentAccessor":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/getTextContentAccessor.js","./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/DOMProperty.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -2784,7 +2812,7 @@ var DOMProperty = {
 module.exports = DOMProperty;
 
 }).call(this,require('_process'))
-},{"./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/DOMPropertyOperations.js":[function(require,module,exports){
+},{"./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/DOMPropertyOperations.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -2981,7 +3009,7 @@ var DOMPropertyOperations = {
 module.exports = DOMPropertyOperations;
 
 }).call(this,require('_process'))
-},{"./DOMProperty":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/DOMProperty.js","./escapeTextForBrowser":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/escapeTextForBrowser.js","./memoizeStringOnly":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/memoizeStringOnly.js","./warning":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/warning.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/Danger.js":[function(require,module,exports){
+},{"./DOMProperty":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/DOMProperty.js","./escapeTextForBrowser":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/escapeTextForBrowser.js","./memoizeStringOnly":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/memoizeStringOnly.js","./warning":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/warning.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/Danger.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -3172,7 +3200,7 @@ var Danger = {
 module.exports = Danger;
 
 }).call(this,require('_process'))
-},{"./ExecutionEnvironment":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js","./createNodesFromMarkup":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/createNodesFromMarkup.js","./emptyFunction":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/emptyFunction.js","./getMarkupWrap":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/getMarkupWrap.js","./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/DefaultEventPluginOrder.js":[function(require,module,exports){
+},{"./ExecutionEnvironment":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js","./createNodesFromMarkup":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/createNodesFromMarkup.js","./emptyFunction":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/emptyFunction.js","./getMarkupWrap":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/getMarkupWrap.js","./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/DefaultEventPluginOrder.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -3219,7 +3247,7 @@ var DefaultEventPluginOrder = [
 
 module.exports = DefaultEventPluginOrder;
 
-},{"./keyOf":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/keyOf.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EnterLeaveEventPlugin.js":[function(require,module,exports){
+},{"./keyOf":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/keyOf.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EnterLeaveEventPlugin.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -3366,7 +3394,7 @@ var EnterLeaveEventPlugin = {
 
 module.exports = EnterLeaveEventPlugin;
 
-},{"./EventConstants":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventConstants.js","./EventPropagators":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventPropagators.js","./ReactMount":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactMount.js","./SyntheticMouseEvent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticMouseEvent.js","./keyOf":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/keyOf.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventConstants.js":[function(require,module,exports){
+},{"./EventConstants":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventConstants.js","./EventPropagators":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventPropagators.js","./ReactMount":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactMount.js","./SyntheticMouseEvent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticMouseEvent.js","./keyOf":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/keyOf.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventConstants.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -3445,7 +3473,7 @@ var EventConstants = {
 
 module.exports = EventConstants;
 
-},{"./keyMirror":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/keyMirror.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventListener.js":[function(require,module,exports){
+},{"./keyMirror":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/keyMirror.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventListener.js":[function(require,module,exports){
 (function (process){
 /**
  * @providesModule EventListener
@@ -3521,7 +3549,7 @@ var EventListener = {
 module.exports = EventListener;
 
 }).call(this,require('_process'))
-},{"./emptyFunction":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/emptyFunction.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventPluginHub.js":[function(require,module,exports){
+},{"./emptyFunction":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/emptyFunction.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventPluginHub.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -3815,7 +3843,7 @@ var EventPluginHub = {
 module.exports = EventPluginHub;
 
 }).call(this,require('_process'))
-},{"./EventPluginRegistry":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventPluginRegistry.js","./EventPluginUtils":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventPluginUtils.js","./accumulate":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/accumulate.js","./forEachAccumulated":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/forEachAccumulated.js","./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","./isEventSupported":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/isEventSupported.js","./monitorCodeUse":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/monitorCodeUse.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventPluginRegistry.js":[function(require,module,exports){
+},{"./EventPluginRegistry":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventPluginRegistry.js","./EventPluginUtils":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventPluginUtils.js","./accumulate":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/accumulate.js","./forEachAccumulated":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/forEachAccumulated.js","./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","./isEventSupported":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/isEventSupported.js","./monitorCodeUse":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/monitorCodeUse.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventPluginRegistry.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -4102,7 +4130,7 @@ var EventPluginRegistry = {
 module.exports = EventPluginRegistry;
 
 }).call(this,require('_process'))
-},{"./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventPluginUtils.js":[function(require,module,exports){
+},{"./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventPluginUtils.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -4330,7 +4358,7 @@ var EventPluginUtils = {
 module.exports = EventPluginUtils;
 
 }).call(this,require('_process'))
-},{"./EventConstants":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventConstants.js","./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventPropagators.js":[function(require,module,exports){
+},{"./EventConstants":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventConstants.js","./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventPropagators.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -4477,7 +4505,7 @@ var EventPropagators = {
 module.exports = EventPropagators;
 
 }).call(this,require('_process'))
-},{"./EventConstants":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventConstants.js","./EventPluginHub":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventPluginHub.js","./accumulate":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/accumulate.js","./forEachAccumulated":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/forEachAccumulated.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js":[function(require,module,exports){
+},{"./EventConstants":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventConstants.js","./EventPluginHub":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventPluginHub.js","./accumulate":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/accumulate.js","./forEachAccumulated":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/forEachAccumulated.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -4529,7 +4557,7 @@ var ExecutionEnvironment = {
 
 module.exports = ExecutionEnvironment;
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/HTMLDOMPropertyConfig.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/HTMLDOMPropertyConfig.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -4717,7 +4745,7 @@ var HTMLDOMPropertyConfig = {
 
 module.exports = HTMLDOMPropertyConfig;
 
-},{"./DOMProperty":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/DOMProperty.js","./ExecutionEnvironment":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/LinkedStateMixin.js":[function(require,module,exports){
+},{"./DOMProperty":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/DOMProperty.js","./ExecutionEnvironment":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/LinkedStateMixin.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -4765,7 +4793,7 @@ var LinkedStateMixin = {
 
 module.exports = LinkedStateMixin;
 
-},{"./ReactLink":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactLink.js","./ReactStateSetters":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactStateSetters.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/LinkedValueUtils.js":[function(require,module,exports){
+},{"./ReactLink":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactLink.js","./ReactStateSetters":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactStateSetters.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/LinkedValueUtils.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -4928,7 +4956,7 @@ var LinkedValueUtils = {
 module.exports = LinkedValueUtils;
 
 }).call(this,require('_process'))
-},{"./ReactPropTypes":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactPropTypes.js","./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/LocalEventTrapMixin.js":[function(require,module,exports){
+},{"./ReactPropTypes":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactPropTypes.js","./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/LocalEventTrapMixin.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014 Facebook, Inc.
@@ -4984,7 +5012,7 @@ var LocalEventTrapMixin = {
 module.exports = LocalEventTrapMixin;
 
 }).call(this,require('_process'))
-},{"./ReactBrowserEventEmitter":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactBrowserEventEmitter.js","./accumulate":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/accumulate.js","./forEachAccumulated":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/forEachAccumulated.js","./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/MobileSafariClickEventPlugin.js":[function(require,module,exports){
+},{"./ReactBrowserEventEmitter":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactBrowserEventEmitter.js","./accumulate":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/accumulate.js","./forEachAccumulated":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/forEachAccumulated.js","./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/MobileSafariClickEventPlugin.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -5049,7 +5077,7 @@ var MobileSafariClickEventPlugin = {
 
 module.exports = MobileSafariClickEventPlugin;
 
-},{"./EventConstants":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventConstants.js","./emptyFunction":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/emptyFunction.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/PooledClass.js":[function(require,module,exports){
+},{"./EventConstants":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventConstants.js","./emptyFunction":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/emptyFunction.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/PooledClass.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -5172,7 +5200,7 @@ var PooledClass = {
 module.exports = PooledClass;
 
 }).call(this,require('_process'))
-},{"./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/React.js":[function(require,module,exports){
+},{"./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/React.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -5307,7 +5335,7 @@ React.version = '0.11.1';
 module.exports = React;
 
 }).call(this,require('_process'))
-},{"./DOMPropertyOperations":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/DOMPropertyOperations.js","./EventPluginUtils":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventPluginUtils.js","./ExecutionEnvironment":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js","./ReactChildren":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactChildren.js","./ReactComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactComponent.js","./ReactCompositeComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactCompositeComponent.js","./ReactContext":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactContext.js","./ReactCurrentOwner":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactCurrentOwner.js","./ReactDOM":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOM.js","./ReactDOMComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOMComponent.js","./ReactDefaultInjection":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDefaultInjection.js","./ReactDescriptor":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDescriptor.js","./ReactInstanceHandles":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactInstanceHandles.js","./ReactMount":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactMount.js","./ReactMultiChild":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactMultiChild.js","./ReactPerf":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactPerf.js","./ReactPropTypes":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactPropTypes.js","./ReactServerRendering":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactServerRendering.js","./ReactTextComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactTextComponent.js","./onlyChild":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/onlyChild.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactBrowserComponentMixin.js":[function(require,module,exports){
+},{"./DOMPropertyOperations":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/DOMPropertyOperations.js","./EventPluginUtils":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventPluginUtils.js","./ExecutionEnvironment":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js","./ReactChildren":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactChildren.js","./ReactComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactComponent.js","./ReactCompositeComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactCompositeComponent.js","./ReactContext":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactContext.js","./ReactCurrentOwner":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactCurrentOwner.js","./ReactDOM":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOM.js","./ReactDOMComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOMComponent.js","./ReactDefaultInjection":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDefaultInjection.js","./ReactDescriptor":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDescriptor.js","./ReactInstanceHandles":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactInstanceHandles.js","./ReactMount":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactMount.js","./ReactMultiChild":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactMultiChild.js","./ReactPerf":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactPerf.js","./ReactPropTypes":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactPropTypes.js","./ReactServerRendering":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactServerRendering.js","./ReactTextComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactTextComponent.js","./onlyChild":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/onlyChild.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactBrowserComponentMixin.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -5357,7 +5385,7 @@ var ReactBrowserComponentMixin = {
 module.exports = ReactBrowserComponentMixin;
 
 }).call(this,require('_process'))
-},{"./ReactEmptyComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactEmptyComponent.js","./ReactMount":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactMount.js","./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactBrowserEventEmitter.js":[function(require,module,exports){
+},{"./ReactEmptyComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactEmptyComponent.js","./ReactMount":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactMount.js","./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactBrowserEventEmitter.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -5719,7 +5747,7 @@ var ReactBrowserEventEmitter = merge(ReactEventEmitterMixin, {
 
 module.exports = ReactBrowserEventEmitter;
 
-},{"./EventConstants":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventConstants.js","./EventPluginHub":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventPluginHub.js","./EventPluginRegistry":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventPluginRegistry.js","./ReactEventEmitterMixin":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactEventEmitterMixin.js","./ViewportMetrics":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ViewportMetrics.js","./isEventSupported":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/isEventSupported.js","./merge":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/merge.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactCSSTransitionGroup.js":[function(require,module,exports){
+},{"./EventConstants":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventConstants.js","./EventPluginHub":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventPluginHub.js","./EventPluginRegistry":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventPluginRegistry.js","./ReactEventEmitterMixin":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactEventEmitterMixin.js","./ViewportMetrics":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ViewportMetrics.js","./isEventSupported":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/isEventSupported.js","./merge":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/merge.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactCSSTransitionGroup.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -5788,7 +5816,7 @@ var ReactCSSTransitionGroup = React.createClass({
 
 module.exports = ReactCSSTransitionGroup;
 
-},{"./React":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/React.js","./ReactCSSTransitionGroupChild":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactCSSTransitionGroupChild.js","./ReactTransitionGroup":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactTransitionGroup.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactCSSTransitionGroupChild.js":[function(require,module,exports){
+},{"./React":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/React.js","./ReactCSSTransitionGroupChild":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactCSSTransitionGroupChild.js","./ReactTransitionGroup":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactTransitionGroup.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactCSSTransitionGroupChild.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -5927,7 +5955,7 @@ var ReactCSSTransitionGroupChild = React.createClass({
 module.exports = ReactCSSTransitionGroupChild;
 
 }).call(this,require('_process'))
-},{"./CSSCore":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/CSSCore.js","./React":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/React.js","./ReactTransitionEvents":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactTransitionEvents.js","./onlyChild":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/onlyChild.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactChildren.js":[function(require,module,exports){
+},{"./CSSCore":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/CSSCore.js","./React":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/React.js","./ReactTransitionEvents":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactTransitionEvents.js","./onlyChild":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/onlyChild.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactChildren.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -6084,7 +6112,7 @@ var ReactChildren = {
 module.exports = ReactChildren;
 
 }).call(this,require('_process'))
-},{"./PooledClass":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/PooledClass.js","./traverseAllChildren":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/traverseAllChildren.js","./warning":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/warning.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactComponent.js":[function(require,module,exports){
+},{"./PooledClass":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/PooledClass.js","./traverseAllChildren":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/traverseAllChildren.js","./warning":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/warning.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactComponent.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -6534,7 +6562,7 @@ var ReactComponent = {
 module.exports = ReactComponent;
 
 }).call(this,require('_process'))
-},{"./ReactDescriptor":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDescriptor.js","./ReactOwner":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactOwner.js","./ReactUpdates":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactUpdates.js","./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","./keyMirror":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/keyMirror.js","./merge":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/merge.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactComponentBrowserEnvironment.js":[function(require,module,exports){
+},{"./ReactDescriptor":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDescriptor.js","./ReactOwner":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactOwner.js","./ReactUpdates":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactUpdates.js","./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","./keyMirror":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/keyMirror.js","./merge":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/merge.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactComponentBrowserEnvironment.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -6663,7 +6691,7 @@ var ReactComponentBrowserEnvironment = {
 module.exports = ReactComponentBrowserEnvironment;
 
 }).call(this,require('_process'))
-},{"./ReactDOMIDOperations":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOMIDOperations.js","./ReactMarkupChecksum":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactMarkupChecksum.js","./ReactMount":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactMount.js","./ReactPerf":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactPerf.js","./ReactReconcileTransaction":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactReconcileTransaction.js","./getReactRootElementInContainer":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/getReactRootElementInContainer.js","./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","./setInnerHTML":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/setInnerHTML.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactComponentWithPureRenderMixin.js":[function(require,module,exports){
+},{"./ReactDOMIDOperations":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOMIDOperations.js","./ReactMarkupChecksum":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactMarkupChecksum.js","./ReactMount":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactMount.js","./ReactPerf":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactPerf.js","./ReactReconcileTransaction":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactReconcileTransaction.js","./getReactRootElementInContainer":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/getReactRootElementInContainer.js","./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","./setInnerHTML":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/setInnerHTML.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactComponentWithPureRenderMixin.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -6719,7 +6747,7 @@ var ReactComponentWithPureRenderMixin = {
 
 module.exports = ReactComponentWithPureRenderMixin;
 
-},{"./shallowEqual":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/shallowEqual.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactCompositeComponent.js":[function(require,module,exports){
+},{"./shallowEqual":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/shallowEqual.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactCompositeComponent.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -8148,7 +8176,7 @@ var ReactCompositeComponent = {
 module.exports = ReactCompositeComponent;
 
 }).call(this,require('_process'))
-},{"./ReactComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactComponent.js","./ReactContext":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactContext.js","./ReactCurrentOwner":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactCurrentOwner.js","./ReactDescriptor":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDescriptor.js","./ReactDescriptorValidator":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDescriptorValidator.js","./ReactEmptyComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactEmptyComponent.js","./ReactErrorUtils":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactErrorUtils.js","./ReactOwner":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactOwner.js","./ReactPerf":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactPerf.js","./ReactPropTransferer":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactPropTransferer.js","./ReactPropTypeLocationNames":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactPropTypeLocationNames.js","./ReactPropTypeLocations":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactPropTypeLocations.js","./ReactUpdates":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactUpdates.js","./instantiateReactComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/instantiateReactComponent.js","./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","./keyMirror":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/keyMirror.js","./mapObject":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/mapObject.js","./merge":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/merge.js","./mixInto":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/mixInto.js","./monitorCodeUse":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/monitorCodeUse.js","./shouldUpdateReactComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/shouldUpdateReactComponent.js","./warning":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/warning.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactContext.js":[function(require,module,exports){
+},{"./ReactComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactComponent.js","./ReactContext":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactContext.js","./ReactCurrentOwner":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactCurrentOwner.js","./ReactDescriptor":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDescriptor.js","./ReactDescriptorValidator":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDescriptorValidator.js","./ReactEmptyComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactEmptyComponent.js","./ReactErrorUtils":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactErrorUtils.js","./ReactOwner":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactOwner.js","./ReactPerf":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactPerf.js","./ReactPropTransferer":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactPropTransferer.js","./ReactPropTypeLocationNames":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactPropTypeLocationNames.js","./ReactPropTypeLocations":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactPropTypeLocations.js","./ReactUpdates":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactUpdates.js","./instantiateReactComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/instantiateReactComponent.js","./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","./keyMirror":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/keyMirror.js","./mapObject":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/mapObject.js","./merge":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/merge.js","./mixInto":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/mixInto.js","./monitorCodeUse":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/monitorCodeUse.js","./shouldUpdateReactComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/shouldUpdateReactComponent.js","./warning":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/warning.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactContext.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -8217,7 +8245,7 @@ var ReactContext = {
 
 module.exports = ReactContext;
 
-},{"./merge":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/merge.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactCurrentOwner.js":[function(require,module,exports){
+},{"./merge":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/merge.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactCurrentOwner.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -8258,7 +8286,7 @@ var ReactCurrentOwner = {
 
 module.exports = ReactCurrentOwner;
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOM.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOM.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -8471,7 +8499,7 @@ ReactDOM.injection = injection;
 module.exports = ReactDOM;
 
 }).call(this,require('_process'))
-},{"./ReactDOMComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOMComponent.js","./ReactDescriptor":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDescriptor.js","./ReactDescriptorValidator":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDescriptorValidator.js","./mapObject":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/mapObject.js","./mergeInto":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/mergeInto.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOMButton.js":[function(require,module,exports){
+},{"./ReactDOMComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOMComponent.js","./ReactDescriptor":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDescriptor.js","./ReactDescriptorValidator":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDescriptorValidator.js","./mapObject":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/mapObject.js","./mergeInto":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/mergeInto.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOMButton.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -8542,7 +8570,7 @@ var ReactDOMButton = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMButton;
 
-},{"./AutoFocusMixin":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/AutoFocusMixin.js","./ReactBrowserComponentMixin":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactCompositeComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactCompositeComponent.js","./ReactDOM":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOM.js","./keyMirror":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/keyMirror.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOMComponent.js":[function(require,module,exports){
+},{"./AutoFocusMixin":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/AutoFocusMixin.js","./ReactBrowserComponentMixin":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactCompositeComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactCompositeComponent.js","./ReactDOM":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOM.js","./keyMirror":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/keyMirror.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOMComponent.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -8964,7 +8992,7 @@ mixInto(ReactDOMComponent, ReactBrowserComponentMixin);
 module.exports = ReactDOMComponent;
 
 }).call(this,require('_process'))
-},{"./CSSPropertyOperations":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/CSSPropertyOperations.js","./DOMProperty":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/DOMProperty.js","./DOMPropertyOperations":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/DOMPropertyOperations.js","./ReactBrowserComponentMixin":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactBrowserEventEmitter":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactBrowserEventEmitter.js","./ReactComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactComponent.js","./ReactMount":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactMount.js","./ReactMultiChild":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactMultiChild.js","./ReactPerf":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactPerf.js","./escapeTextForBrowser":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/escapeTextForBrowser.js","./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","./keyOf":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/keyOf.js","./merge":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/merge.js","./mixInto":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/mixInto.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOMForm.js":[function(require,module,exports){
+},{"./CSSPropertyOperations":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/CSSPropertyOperations.js","./DOMProperty":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/DOMProperty.js","./DOMPropertyOperations":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/DOMPropertyOperations.js","./ReactBrowserComponentMixin":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactBrowserEventEmitter":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactBrowserEventEmitter.js","./ReactComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactComponent.js","./ReactMount":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactMount.js","./ReactMultiChild":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactMultiChild.js","./ReactPerf":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactPerf.js","./escapeTextForBrowser":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/escapeTextForBrowser.js","./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","./keyOf":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/keyOf.js","./merge":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/merge.js","./mixInto":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/mixInto.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOMForm.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -9020,7 +9048,7 @@ var ReactDOMForm = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMForm;
 
-},{"./EventConstants":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventConstants.js","./LocalEventTrapMixin":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/LocalEventTrapMixin.js","./ReactBrowserComponentMixin":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactCompositeComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactCompositeComponent.js","./ReactDOM":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOM.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOMIDOperations.js":[function(require,module,exports){
+},{"./EventConstants":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventConstants.js","./LocalEventTrapMixin":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/LocalEventTrapMixin.js","./ReactBrowserComponentMixin":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactCompositeComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactCompositeComponent.js","./ReactDOM":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOM.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOMIDOperations.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -9213,7 +9241,7 @@ var ReactDOMIDOperations = {
 module.exports = ReactDOMIDOperations;
 
 }).call(this,require('_process'))
-},{"./CSSPropertyOperations":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/CSSPropertyOperations.js","./DOMChildrenOperations":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/DOMChildrenOperations.js","./DOMPropertyOperations":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/DOMPropertyOperations.js","./ReactMount":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactMount.js","./ReactPerf":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactPerf.js","./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","./setInnerHTML":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/setInnerHTML.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOMImg.js":[function(require,module,exports){
+},{"./CSSPropertyOperations":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/CSSPropertyOperations.js","./DOMChildrenOperations":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/DOMChildrenOperations.js","./DOMPropertyOperations":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/DOMPropertyOperations.js","./ReactMount":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactMount.js","./ReactPerf":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactPerf.js","./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","./setInnerHTML":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/setInnerHTML.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOMImg.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -9267,7 +9295,7 @@ var ReactDOMImg = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMImg;
 
-},{"./EventConstants":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventConstants.js","./LocalEventTrapMixin":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/LocalEventTrapMixin.js","./ReactBrowserComponentMixin":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactCompositeComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactCompositeComponent.js","./ReactDOM":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOM.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOMInput.js":[function(require,module,exports){
+},{"./EventConstants":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventConstants.js","./LocalEventTrapMixin":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/LocalEventTrapMixin.js","./ReactBrowserComponentMixin":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactCompositeComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactCompositeComponent.js","./ReactDOM":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOM.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOMInput.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -9453,7 +9481,7 @@ var ReactDOMInput = ReactCompositeComponent.createClass({
 module.exports = ReactDOMInput;
 
 }).call(this,require('_process'))
-},{"./AutoFocusMixin":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/AutoFocusMixin.js","./DOMPropertyOperations":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/DOMPropertyOperations.js","./LinkedValueUtils":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/LinkedValueUtils.js","./ReactBrowserComponentMixin":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactCompositeComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactCompositeComponent.js","./ReactDOM":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOM.js","./ReactMount":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactMount.js","./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","./merge":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/merge.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOMOption.js":[function(require,module,exports){
+},{"./AutoFocusMixin":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/AutoFocusMixin.js","./DOMPropertyOperations":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/DOMPropertyOperations.js","./LinkedValueUtils":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/LinkedValueUtils.js","./ReactBrowserComponentMixin":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactCompositeComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactCompositeComponent.js","./ReactDOM":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOM.js","./ReactMount":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactMount.js","./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","./merge":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/merge.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOMOption.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -9512,7 +9540,7 @@ var ReactDOMOption = ReactCompositeComponent.createClass({
 module.exports = ReactDOMOption;
 
 }).call(this,require('_process'))
-},{"./ReactBrowserComponentMixin":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactCompositeComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactCompositeComponent.js","./ReactDOM":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOM.js","./warning":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/warning.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOMSelect.js":[function(require,module,exports){
+},{"./ReactBrowserComponentMixin":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactCompositeComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactCompositeComponent.js","./ReactDOM":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOM.js","./warning":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/warning.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOMSelect.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -9695,7 +9723,7 @@ var ReactDOMSelect = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMSelect;
 
-},{"./AutoFocusMixin":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/AutoFocusMixin.js","./LinkedValueUtils":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/LinkedValueUtils.js","./ReactBrowserComponentMixin":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactCompositeComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactCompositeComponent.js","./ReactDOM":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOM.js","./merge":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/merge.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOMSelection.js":[function(require,module,exports){
+},{"./AutoFocusMixin":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/AutoFocusMixin.js","./LinkedValueUtils":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/LinkedValueUtils.js","./ReactBrowserComponentMixin":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactCompositeComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactCompositeComponent.js","./ReactDOM":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOM.js","./merge":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/merge.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOMSelection.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -9911,7 +9939,7 @@ var ReactDOMSelection = {
 
 module.exports = ReactDOMSelection;
 
-},{"./ExecutionEnvironment":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js","./getNodeForCharacterOffset":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/getNodeForCharacterOffset.js","./getTextContentAccessor":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/getTextContentAccessor.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOMTextarea.js":[function(require,module,exports){
+},{"./ExecutionEnvironment":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js","./getNodeForCharacterOffset":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/getNodeForCharacterOffset.js","./getTextContentAccessor":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/getTextContentAccessor.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOMTextarea.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -10057,7 +10085,7 @@ var ReactDOMTextarea = ReactCompositeComponent.createClass({
 module.exports = ReactDOMTextarea;
 
 }).call(this,require('_process'))
-},{"./AutoFocusMixin":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/AutoFocusMixin.js","./DOMPropertyOperations":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/DOMPropertyOperations.js","./LinkedValueUtils":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/LinkedValueUtils.js","./ReactBrowserComponentMixin":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactCompositeComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactCompositeComponent.js","./ReactDOM":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOM.js","./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","./merge":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/merge.js","./warning":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/warning.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDefaultBatchingStrategy.js":[function(require,module,exports){
+},{"./AutoFocusMixin":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/AutoFocusMixin.js","./DOMPropertyOperations":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/DOMPropertyOperations.js","./LinkedValueUtils":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/LinkedValueUtils.js","./ReactBrowserComponentMixin":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactCompositeComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactCompositeComponent.js","./ReactDOM":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOM.js","./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","./merge":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/merge.js","./warning":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/warning.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDefaultBatchingStrategy.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -10134,7 +10162,7 @@ var ReactDefaultBatchingStrategy = {
 
 module.exports = ReactDefaultBatchingStrategy;
 
-},{"./ReactUpdates":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactUpdates.js","./Transaction":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/Transaction.js","./emptyFunction":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/emptyFunction.js","./mixInto":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/mixInto.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDefaultInjection.js":[function(require,module,exports){
+},{"./ReactUpdates":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactUpdates.js","./Transaction":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/Transaction.js","./emptyFunction":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/emptyFunction.js","./mixInto":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/mixInto.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDefaultInjection.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -10266,7 +10294,7 @@ module.exports = {
 };
 
 }).call(this,require('_process'))
-},{"./BeforeInputEventPlugin":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/BeforeInputEventPlugin.js","./ChangeEventPlugin":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ChangeEventPlugin.js","./ClientReactRootIndex":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ClientReactRootIndex.js","./CompositionEventPlugin":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/CompositionEventPlugin.js","./DefaultEventPluginOrder":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/DefaultEventPluginOrder.js","./EnterLeaveEventPlugin":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EnterLeaveEventPlugin.js","./ExecutionEnvironment":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js","./HTMLDOMPropertyConfig":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/HTMLDOMPropertyConfig.js","./MobileSafariClickEventPlugin":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/MobileSafariClickEventPlugin.js","./ReactBrowserComponentMixin":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactComponentBrowserEnvironment":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactComponentBrowserEnvironment.js","./ReactDOM":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOM.js","./ReactDOMButton":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOMButton.js","./ReactDOMForm":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOMForm.js","./ReactDOMImg":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOMImg.js","./ReactDOMInput":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOMInput.js","./ReactDOMOption":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOMOption.js","./ReactDOMSelect":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOMSelect.js","./ReactDOMTextarea":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOMTextarea.js","./ReactDefaultBatchingStrategy":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDefaultBatchingStrategy.js","./ReactDefaultPerf":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDefaultPerf.js","./ReactEventListener":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactEventListener.js","./ReactInjection":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactInjection.js","./ReactInstanceHandles":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactInstanceHandles.js","./ReactMount":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactMount.js","./SVGDOMPropertyConfig":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SVGDOMPropertyConfig.js","./SelectEventPlugin":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SelectEventPlugin.js","./ServerReactRootIndex":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ServerReactRootIndex.js","./SimpleEventPlugin":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SimpleEventPlugin.js","./createFullPageComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/createFullPageComponent.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDefaultPerf.js":[function(require,module,exports){
+},{"./BeforeInputEventPlugin":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/BeforeInputEventPlugin.js","./ChangeEventPlugin":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ChangeEventPlugin.js","./ClientReactRootIndex":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ClientReactRootIndex.js","./CompositionEventPlugin":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/CompositionEventPlugin.js","./DefaultEventPluginOrder":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/DefaultEventPluginOrder.js","./EnterLeaveEventPlugin":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EnterLeaveEventPlugin.js","./ExecutionEnvironment":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js","./HTMLDOMPropertyConfig":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/HTMLDOMPropertyConfig.js","./MobileSafariClickEventPlugin":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/MobileSafariClickEventPlugin.js","./ReactBrowserComponentMixin":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactComponentBrowserEnvironment":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactComponentBrowserEnvironment.js","./ReactDOM":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOM.js","./ReactDOMButton":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOMButton.js","./ReactDOMForm":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOMForm.js","./ReactDOMImg":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOMImg.js","./ReactDOMInput":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOMInput.js","./ReactDOMOption":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOMOption.js","./ReactDOMSelect":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOMSelect.js","./ReactDOMTextarea":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOMTextarea.js","./ReactDefaultBatchingStrategy":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDefaultBatchingStrategy.js","./ReactDefaultPerf":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDefaultPerf.js","./ReactEventListener":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactEventListener.js","./ReactInjection":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactInjection.js","./ReactInstanceHandles":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactInstanceHandles.js","./ReactMount":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactMount.js","./SVGDOMPropertyConfig":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SVGDOMPropertyConfig.js","./SelectEventPlugin":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SelectEventPlugin.js","./ServerReactRootIndex":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ServerReactRootIndex.js","./SimpleEventPlugin":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SimpleEventPlugin.js","./createFullPageComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/createFullPageComponent.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDefaultPerf.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -10529,7 +10557,7 @@ var ReactDefaultPerf = {
 
 module.exports = ReactDefaultPerf;
 
-},{"./DOMProperty":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/DOMProperty.js","./ReactDefaultPerfAnalysis":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDefaultPerfAnalysis.js","./ReactMount":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactMount.js","./ReactPerf":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactPerf.js","./performanceNow":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/performanceNow.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDefaultPerfAnalysis.js":[function(require,module,exports){
+},{"./DOMProperty":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/DOMProperty.js","./ReactDefaultPerfAnalysis":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDefaultPerfAnalysis.js","./ReactMount":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactMount.js","./ReactPerf":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactPerf.js","./performanceNow":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/performanceNow.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDefaultPerfAnalysis.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -10734,7 +10762,7 @@ var ReactDefaultPerfAnalysis = {
 
 module.exports = ReactDefaultPerfAnalysis;
 
-},{"./merge":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/merge.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDescriptor.js":[function(require,module,exports){
+},{"./merge":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/merge.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDescriptor.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014 Facebook, Inc.
@@ -10989,7 +11017,7 @@ ReactDescriptor.isValidDescriptor = function(object) {
 module.exports = ReactDescriptor;
 
 }).call(this,require('_process'))
-},{"./ReactContext":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactContext.js","./ReactCurrentOwner":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactCurrentOwner.js","./merge":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/merge.js","./warning":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/warning.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDescriptorValidator.js":[function(require,module,exports){
+},{"./ReactContext":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactContext.js","./ReactCurrentOwner":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactCurrentOwner.js","./merge":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/merge.js","./warning":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/warning.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDescriptorValidator.js":[function(require,module,exports){
 /**
  * Copyright 2014 Facebook, Inc.
  *
@@ -11274,7 +11302,7 @@ var ReactDescriptorValidator = {
 
 module.exports = ReactDescriptorValidator;
 
-},{"./ReactCurrentOwner":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactCurrentOwner.js","./ReactDescriptor":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDescriptor.js","./ReactPropTypeLocations":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactPropTypeLocations.js","./monitorCodeUse":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/monitorCodeUse.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactEmptyComponent.js":[function(require,module,exports){
+},{"./ReactCurrentOwner":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactCurrentOwner.js","./ReactDescriptor":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDescriptor.js","./ReactPropTypeLocations":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactPropTypeLocations.js","./monitorCodeUse":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/monitorCodeUse.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactEmptyComponent.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014 Facebook, Inc.
@@ -11356,7 +11384,7 @@ var ReactEmptyComponent = {
 module.exports = ReactEmptyComponent;
 
 }).call(this,require('_process'))
-},{"./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactErrorUtils.js":[function(require,module,exports){
+},{"./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactErrorUtils.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -11395,7 +11423,7 @@ var ReactErrorUtils = {
 
 module.exports = ReactErrorUtils;
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactEventEmitterMixin.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactEventEmitterMixin.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -11452,7 +11480,7 @@ var ReactEventEmitterMixin = {
 
 module.exports = ReactEventEmitterMixin;
 
-},{"./EventPluginHub":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventPluginHub.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactEventListener.js":[function(require,module,exports){
+},{"./EventPluginHub":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventPluginHub.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactEventListener.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -11643,7 +11671,7 @@ var ReactEventListener = {
 
 module.exports = ReactEventListener;
 
-},{"./EventListener":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventListener.js","./ExecutionEnvironment":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js","./PooledClass":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/PooledClass.js","./ReactInstanceHandles":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactInstanceHandles.js","./ReactMount":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactMount.js","./ReactUpdates":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactUpdates.js","./getEventTarget":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/getEventTarget.js","./getUnboundedScrollPosition":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/getUnboundedScrollPosition.js","./mixInto":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/mixInto.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactInjection.js":[function(require,module,exports){
+},{"./EventListener":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventListener.js","./ExecutionEnvironment":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js","./PooledClass":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/PooledClass.js","./ReactInstanceHandles":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactInstanceHandles.js","./ReactMount":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactMount.js","./ReactUpdates":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactUpdates.js","./getEventTarget":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/getEventTarget.js","./getUnboundedScrollPosition":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/getUnboundedScrollPosition.js","./mixInto":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/mixInto.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactInjection.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -11690,7 +11718,7 @@ var ReactInjection = {
 
 module.exports = ReactInjection;
 
-},{"./DOMProperty":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/DOMProperty.js","./EventPluginHub":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventPluginHub.js","./ReactBrowserEventEmitter":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactBrowserEventEmitter.js","./ReactComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactComponent.js","./ReactCompositeComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactCompositeComponent.js","./ReactDOM":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOM.js","./ReactEmptyComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactEmptyComponent.js","./ReactPerf":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactPerf.js","./ReactRootIndex":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactRootIndex.js","./ReactUpdates":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactUpdates.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactInputSelection.js":[function(require,module,exports){
+},{"./DOMProperty":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/DOMProperty.js","./EventPluginHub":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventPluginHub.js","./ReactBrowserEventEmitter":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactBrowserEventEmitter.js","./ReactComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactComponent.js","./ReactCompositeComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactCompositeComponent.js","./ReactDOM":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOM.js","./ReactEmptyComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactEmptyComponent.js","./ReactPerf":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactPerf.js","./ReactRootIndex":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactRootIndex.js","./ReactUpdates":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactUpdates.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactInputSelection.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -11833,7 +11861,7 @@ var ReactInputSelection = {
 
 module.exports = ReactInputSelection;
 
-},{"./ReactDOMSelection":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOMSelection.js","./containsNode":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/containsNode.js","./focusNode":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/focusNode.js","./getActiveElement":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/getActiveElement.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactInstanceHandles.js":[function(require,module,exports){
+},{"./ReactDOMSelection":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOMSelection.js","./containsNode":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/containsNode.js","./focusNode":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/focusNode.js","./getActiveElement":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/getActiveElement.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactInstanceHandles.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -12175,7 +12203,7 @@ var ReactInstanceHandles = {
 module.exports = ReactInstanceHandles;
 
 }).call(this,require('_process'))
-},{"./ReactRootIndex":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactRootIndex.js","./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactLink.js":[function(require,module,exports){
+},{"./ReactRootIndex":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactRootIndex.js","./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactLink.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -12255,7 +12283,7 @@ ReactLink.PropTypes = {
 
 module.exports = ReactLink;
 
-},{"./React":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/React.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactMarkupChecksum.js":[function(require,module,exports){
+},{"./React":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/React.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactMarkupChecksum.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -12310,7 +12338,7 @@ var ReactMarkupChecksum = {
 
 module.exports = ReactMarkupChecksum;
 
-},{"./adler32":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/adler32.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactMount.js":[function(require,module,exports){
+},{"./adler32":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/adler32.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactMount.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -12995,7 +13023,7 @@ var ReactMount = {
 module.exports = ReactMount;
 
 }).call(this,require('_process'))
-},{"./DOMProperty":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/DOMProperty.js","./ReactBrowserEventEmitter":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactBrowserEventEmitter.js","./ReactCurrentOwner":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactCurrentOwner.js","./ReactDescriptor":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDescriptor.js","./ReactInstanceHandles":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactInstanceHandles.js","./ReactPerf":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactPerf.js","./containsNode":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/containsNode.js","./getReactRootElementInContainer":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/getReactRootElementInContainer.js","./instantiateReactComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/instantiateReactComponent.js","./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","./shouldUpdateReactComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/shouldUpdateReactComponent.js","./warning":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/warning.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactMultiChild.js":[function(require,module,exports){
+},{"./DOMProperty":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/DOMProperty.js","./ReactBrowserEventEmitter":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactBrowserEventEmitter.js","./ReactCurrentOwner":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactCurrentOwner.js","./ReactDescriptor":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDescriptor.js","./ReactInstanceHandles":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactInstanceHandles.js","./ReactPerf":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactPerf.js","./containsNode":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/containsNode.js","./getReactRootElementInContainer":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/getReactRootElementInContainer.js","./instantiateReactComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/instantiateReactComponent.js","./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","./shouldUpdateReactComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/shouldUpdateReactComponent.js","./warning":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/warning.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactMultiChild.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -13427,7 +13455,7 @@ var ReactMultiChild = {
 
 module.exports = ReactMultiChild;
 
-},{"./ReactComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactComponent.js","./ReactMultiChildUpdateTypes":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactMultiChildUpdateTypes.js","./flattenChildren":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/flattenChildren.js","./instantiateReactComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/instantiateReactComponent.js","./shouldUpdateReactComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/shouldUpdateReactComponent.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactMultiChildUpdateTypes.js":[function(require,module,exports){
+},{"./ReactComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactComponent.js","./ReactMultiChildUpdateTypes":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactMultiChildUpdateTypes.js","./flattenChildren":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/flattenChildren.js","./instantiateReactComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/instantiateReactComponent.js","./shouldUpdateReactComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/shouldUpdateReactComponent.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactMultiChildUpdateTypes.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -13467,7 +13495,7 @@ var ReactMultiChildUpdateTypes = keyMirror({
 
 module.exports = ReactMultiChildUpdateTypes;
 
-},{"./keyMirror":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/keyMirror.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactOwner.js":[function(require,module,exports){
+},{"./keyMirror":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/keyMirror.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactOwner.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -13630,7 +13658,7 @@ var ReactOwner = {
 module.exports = ReactOwner;
 
 }).call(this,require('_process'))
-},{"./emptyObject":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/emptyObject.js","./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactPerf.js":[function(require,module,exports){
+},{"./emptyObject":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/emptyObject.js","./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactPerf.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -13719,7 +13747,7 @@ function _noMeasure(objName, fnName, func) {
 module.exports = ReactPerf;
 
 }).call(this,require('_process'))
-},{"_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactPropTransferer.js":[function(require,module,exports){
+},{"_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactPropTransferer.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -13885,7 +13913,7 @@ var ReactPropTransferer = {
 module.exports = ReactPropTransferer;
 
 }).call(this,require('_process'))
-},{"./emptyFunction":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/emptyFunction.js","./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","./joinClasses":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/joinClasses.js","./merge":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/merge.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactPropTypeLocationNames.js":[function(require,module,exports){
+},{"./emptyFunction":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/emptyFunction.js","./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","./joinClasses":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/joinClasses.js","./merge":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/merge.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactPropTypeLocationNames.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -13920,7 +13948,7 @@ if ("production" !== process.env.NODE_ENV) {
 module.exports = ReactPropTypeLocationNames;
 
 }).call(this,require('_process'))
-},{"_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactPropTypeLocations.js":[function(require,module,exports){
+},{"_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactPropTypeLocations.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -13951,7 +13979,7 @@ var ReactPropTypeLocations = keyMirror({
 
 module.exports = ReactPropTypeLocations;
 
-},{"./keyMirror":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/keyMirror.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactPropTypes.js":[function(require,module,exports){
+},{"./keyMirror":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/keyMirror.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactPropTypes.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -14296,7 +14324,7 @@ function getPreciseType(propValue) {
 
 module.exports = ReactPropTypes;
 
-},{"./ReactDescriptor":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDescriptor.js","./ReactPropTypeLocationNames":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactPropTypeLocationNames.js","./emptyFunction":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/emptyFunction.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactPutListenerQueue.js":[function(require,module,exports){
+},{"./ReactDescriptor":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDescriptor.js","./ReactPropTypeLocationNames":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactPropTypeLocationNames.js","./emptyFunction":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/emptyFunction.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactPutListenerQueue.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -14359,7 +14387,7 @@ PooledClass.addPoolingTo(ReactPutListenerQueue);
 
 module.exports = ReactPutListenerQueue;
 
-},{"./PooledClass":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/PooledClass.js","./ReactBrowserEventEmitter":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactBrowserEventEmitter.js","./mixInto":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/mixInto.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactReconcileTransaction.js":[function(require,module,exports){
+},{"./PooledClass":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/PooledClass.js","./ReactBrowserEventEmitter":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactBrowserEventEmitter.js","./mixInto":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/mixInto.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactReconcileTransaction.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -14543,7 +14571,7 @@ PooledClass.addPoolingTo(ReactReconcileTransaction);
 
 module.exports = ReactReconcileTransaction;
 
-},{"./CallbackQueue":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/CallbackQueue.js","./PooledClass":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/PooledClass.js","./ReactBrowserEventEmitter":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactBrowserEventEmitter.js","./ReactInputSelection":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactInputSelection.js","./ReactPutListenerQueue":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactPutListenerQueue.js","./Transaction":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/Transaction.js","./mixInto":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/mixInto.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactRootIndex.js":[function(require,module,exports){
+},{"./CallbackQueue":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/CallbackQueue.js","./PooledClass":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/PooledClass.js","./ReactBrowserEventEmitter":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactBrowserEventEmitter.js","./ReactInputSelection":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactInputSelection.js","./ReactPutListenerQueue":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactPutListenerQueue.js","./Transaction":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/Transaction.js","./mixInto":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/mixInto.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactRootIndex.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -14581,7 +14609,7 @@ var ReactRootIndex = {
 
 module.exports = ReactRootIndex;
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactServerRendering.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactServerRendering.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -14674,7 +14702,7 @@ module.exports = {
 };
 
 }).call(this,require('_process'))
-},{"./ReactDescriptor":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDescriptor.js","./ReactInstanceHandles":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactInstanceHandles.js","./ReactMarkupChecksum":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactMarkupChecksum.js","./ReactServerRenderingTransaction":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactServerRenderingTransaction.js","./instantiateReactComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/instantiateReactComponent.js","./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactServerRenderingTransaction.js":[function(require,module,exports){
+},{"./ReactDescriptor":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDescriptor.js","./ReactInstanceHandles":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactInstanceHandles.js","./ReactMarkupChecksum":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactMarkupChecksum.js","./ReactServerRenderingTransaction":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactServerRenderingTransaction.js","./instantiateReactComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/instantiateReactComponent.js","./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactServerRenderingTransaction.js":[function(require,module,exports){
 /**
  * Copyright 2014 Facebook, Inc.
  *
@@ -14791,7 +14819,7 @@ PooledClass.addPoolingTo(ReactServerRenderingTransaction);
 
 module.exports = ReactServerRenderingTransaction;
 
-},{"./CallbackQueue":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/CallbackQueue.js","./PooledClass":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/PooledClass.js","./ReactPutListenerQueue":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactPutListenerQueue.js","./Transaction":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/Transaction.js","./emptyFunction":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/emptyFunction.js","./mixInto":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/mixInto.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactStateSetters.js":[function(require,module,exports){
+},{"./CallbackQueue":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/CallbackQueue.js","./PooledClass":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/PooledClass.js","./ReactPutListenerQueue":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactPutListenerQueue.js","./Transaction":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/Transaction.js","./emptyFunction":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/emptyFunction.js","./mixInto":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/mixInto.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactStateSetters.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -14904,7 +14932,7 @@ ReactStateSetters.Mixin = {
 
 module.exports = ReactStateSetters;
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactTestUtils.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactTestUtils.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -15318,7 +15346,7 @@ for (eventType in topLevelTypes) {
 
 module.exports = ReactTestUtils;
 
-},{"./EventConstants":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventConstants.js","./EventPluginHub":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventPluginHub.js","./EventPropagators":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventPropagators.js","./React":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/React.js","./ReactBrowserEventEmitter":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactBrowserEventEmitter.js","./ReactDOM":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDOM.js","./ReactDescriptor":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDescriptor.js","./ReactMount":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactMount.js","./ReactTextComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactTextComponent.js","./ReactUpdates":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactUpdates.js","./SyntheticEvent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticEvent.js","./copyProperties":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/copyProperties.js","./mergeInto":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/mergeInto.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactTextComponent.js":[function(require,module,exports){
+},{"./EventConstants":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventConstants.js","./EventPluginHub":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventPluginHub.js","./EventPropagators":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventPropagators.js","./React":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/React.js","./ReactBrowserEventEmitter":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactBrowserEventEmitter.js","./ReactDOM":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDOM.js","./ReactDescriptor":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDescriptor.js","./ReactMount":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactMount.js","./ReactTextComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactTextComponent.js","./ReactUpdates":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactUpdates.js","./SyntheticEvent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticEvent.js","./copyProperties":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/copyProperties.js","./mergeInto":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/mergeInto.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactTextComponent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -15427,7 +15455,7 @@ mixInto(ReactTextComponent, {
 
 module.exports = ReactDescriptor.createFactory(ReactTextComponent);
 
-},{"./DOMPropertyOperations":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/DOMPropertyOperations.js","./ReactBrowserComponentMixin":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactComponent.js","./ReactDescriptor":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDescriptor.js","./escapeTextForBrowser":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/escapeTextForBrowser.js","./mixInto":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/mixInto.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactTransitionChildMapping.js":[function(require,module,exports){
+},{"./DOMPropertyOperations":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/DOMPropertyOperations.js","./ReactBrowserComponentMixin":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactComponent.js","./ReactDescriptor":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDescriptor.js","./escapeTextForBrowser":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/escapeTextForBrowser.js","./mixInto":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/mixInto.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactTransitionChildMapping.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -15535,7 +15563,7 @@ var ReactTransitionChildMapping = {
 
 module.exports = ReactTransitionChildMapping;
 
-},{"./ReactChildren":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactChildren.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactTransitionEvents.js":[function(require,module,exports){
+},{"./ReactChildren":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactChildren.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactTransitionEvents.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -15653,7 +15681,7 @@ var ReactTransitionEvents = {
 
 module.exports = ReactTransitionEvents;
 
-},{"./ExecutionEnvironment":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactTransitionGroup.js":[function(require,module,exports){
+},{"./ExecutionEnvironment":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactTransitionGroup.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -15845,7 +15873,7 @@ var ReactTransitionGroup = React.createClass({
 
 module.exports = ReactTransitionGroup;
 
-},{"./React":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/React.js","./ReactTransitionChildMapping":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactTransitionChildMapping.js","./cloneWithProps":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/cloneWithProps.js","./emptyFunction":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/emptyFunction.js","./merge":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/merge.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactUpdates.js":[function(require,module,exports){
+},{"./React":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/React.js","./ReactTransitionChildMapping":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactTransitionChildMapping.js","./cloneWithProps":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/cloneWithProps.js","./emptyFunction":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/emptyFunction.js","./merge":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/merge.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactUpdates.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -16114,7 +16142,7 @@ var ReactUpdates = {
 module.exports = ReactUpdates;
 
 }).call(this,require('_process'))
-},{"./CallbackQueue":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/CallbackQueue.js","./PooledClass":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/PooledClass.js","./ReactCurrentOwner":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactCurrentOwner.js","./ReactPerf":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactPerf.js","./Transaction":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/Transaction.js","./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","./mixInto":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/mixInto.js","./warning":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/warning.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactWithAddons.js":[function(require,module,exports){
+},{"./CallbackQueue":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/CallbackQueue.js","./PooledClass":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/PooledClass.js","./ReactCurrentOwner":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactCurrentOwner.js","./ReactPerf":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactPerf.js","./Transaction":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/Transaction.js","./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","./mixInto":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/mixInto.js","./warning":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/warning.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactWithAddons.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -16174,7 +16202,7 @@ module.exports = React;
 
 
 }).call(this,require('_process'))
-},{"./LinkedStateMixin":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/LinkedStateMixin.js","./React":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/React.js","./ReactCSSTransitionGroup":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactCSSTransitionGroup.js","./ReactComponentWithPureRenderMixin":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactComponentWithPureRenderMixin.js","./ReactDefaultPerf":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDefaultPerf.js","./ReactTestUtils":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactTestUtils.js","./ReactTransitionGroup":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactTransitionGroup.js","./cloneWithProps":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/cloneWithProps.js","./cx":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/cx.js","./update":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/update.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SVGDOMPropertyConfig.js":[function(require,module,exports){
+},{"./LinkedStateMixin":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/LinkedStateMixin.js","./React":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/React.js","./ReactCSSTransitionGroup":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactCSSTransitionGroup.js","./ReactComponentWithPureRenderMixin":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactComponentWithPureRenderMixin.js","./ReactDefaultPerf":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDefaultPerf.js","./ReactTestUtils":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactTestUtils.js","./ReactTransitionGroup":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactTransitionGroup.js","./cloneWithProps":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/cloneWithProps.js","./cx":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/cx.js","./update":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/update.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SVGDOMPropertyConfig.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -16273,7 +16301,7 @@ var SVGDOMPropertyConfig = {
 
 module.exports = SVGDOMPropertyConfig;
 
-},{"./DOMProperty":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/DOMProperty.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SelectEventPlugin.js":[function(require,module,exports){
+},{"./DOMProperty":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/DOMProperty.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SelectEventPlugin.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -16475,7 +16503,7 @@ var SelectEventPlugin = {
 
 module.exports = SelectEventPlugin;
 
-},{"./EventConstants":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventConstants.js","./EventPropagators":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventPropagators.js","./ReactInputSelection":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactInputSelection.js","./SyntheticEvent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticEvent.js","./getActiveElement":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/getActiveElement.js","./isTextInputElement":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/isTextInputElement.js","./keyOf":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/keyOf.js","./shallowEqual":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/shallowEqual.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ServerReactRootIndex.js":[function(require,module,exports){
+},{"./EventConstants":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventConstants.js","./EventPropagators":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventPropagators.js","./ReactInputSelection":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactInputSelection.js","./SyntheticEvent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticEvent.js","./getActiveElement":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/getActiveElement.js","./isTextInputElement":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/isTextInputElement.js","./keyOf":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/keyOf.js","./shallowEqual":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/shallowEqual.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ServerReactRootIndex.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -16513,7 +16541,7 @@ var ServerReactRootIndex = {
 
 module.exports = ServerReactRootIndex;
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SimpleEventPlugin.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SimpleEventPlugin.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -16936,7 +16964,7 @@ var SimpleEventPlugin = {
 module.exports = SimpleEventPlugin;
 
 }).call(this,require('_process'))
-},{"./EventConstants":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventConstants.js","./EventPluginUtils":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventPluginUtils.js","./EventPropagators":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/EventPropagators.js","./SyntheticClipboardEvent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticClipboardEvent.js","./SyntheticDragEvent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticDragEvent.js","./SyntheticEvent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticEvent.js","./SyntheticFocusEvent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticFocusEvent.js","./SyntheticKeyboardEvent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticKeyboardEvent.js","./SyntheticMouseEvent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticMouseEvent.js","./SyntheticTouchEvent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticTouchEvent.js","./SyntheticUIEvent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticUIEvent.js","./SyntheticWheelEvent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticWheelEvent.js","./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","./keyOf":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/keyOf.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticClipboardEvent.js":[function(require,module,exports){
+},{"./EventConstants":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventConstants.js","./EventPluginUtils":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventPluginUtils.js","./EventPropagators":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/EventPropagators.js","./SyntheticClipboardEvent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticClipboardEvent.js","./SyntheticDragEvent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticDragEvent.js","./SyntheticEvent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticEvent.js","./SyntheticFocusEvent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticFocusEvent.js","./SyntheticKeyboardEvent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticKeyboardEvent.js","./SyntheticMouseEvent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticMouseEvent.js","./SyntheticTouchEvent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticTouchEvent.js","./SyntheticUIEvent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticUIEvent.js","./SyntheticWheelEvent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticWheelEvent.js","./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","./keyOf":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/keyOf.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticClipboardEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -16989,7 +17017,7 @@ SyntheticEvent.augmentClass(SyntheticClipboardEvent, ClipboardEventInterface);
 module.exports = SyntheticClipboardEvent;
 
 
-},{"./SyntheticEvent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticEvent.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticCompositionEvent.js":[function(require,module,exports){
+},{"./SyntheticEvent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticEvent.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticCompositionEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -17042,7 +17070,7 @@ SyntheticEvent.augmentClass(
 module.exports = SyntheticCompositionEvent;
 
 
-},{"./SyntheticEvent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticEvent.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticDragEvent.js":[function(require,module,exports){
+},{"./SyntheticEvent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticEvent.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticDragEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -17088,7 +17116,7 @@ SyntheticMouseEvent.augmentClass(SyntheticDragEvent, DragEventInterface);
 
 module.exports = SyntheticDragEvent;
 
-},{"./SyntheticMouseEvent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticMouseEvent.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticEvent.js":[function(require,module,exports){
+},{"./SyntheticMouseEvent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticMouseEvent.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -17254,7 +17282,7 @@ PooledClass.addPoolingTo(SyntheticEvent, PooledClass.threeArgumentPooler);
 
 module.exports = SyntheticEvent;
 
-},{"./PooledClass":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/PooledClass.js","./emptyFunction":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/emptyFunction.js","./getEventTarget":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/getEventTarget.js","./merge":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/merge.js","./mergeInto":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/mergeInto.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticFocusEvent.js":[function(require,module,exports){
+},{"./PooledClass":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/PooledClass.js","./emptyFunction":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/emptyFunction.js","./getEventTarget":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/getEventTarget.js","./merge":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/merge.js","./mergeInto":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/mergeInto.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticFocusEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -17300,7 +17328,7 @@ SyntheticUIEvent.augmentClass(SyntheticFocusEvent, FocusEventInterface);
 
 module.exports = SyntheticFocusEvent;
 
-},{"./SyntheticUIEvent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticUIEvent.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticInputEvent.js":[function(require,module,exports){
+},{"./SyntheticUIEvent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticUIEvent.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticInputEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  *
@@ -17354,7 +17382,7 @@ SyntheticEvent.augmentClass(
 module.exports = SyntheticInputEvent;
 
 
-},{"./SyntheticEvent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticEvent.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticKeyboardEvent.js":[function(require,module,exports){
+},{"./SyntheticEvent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticEvent.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticKeyboardEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -17443,7 +17471,7 @@ SyntheticUIEvent.augmentClass(SyntheticKeyboardEvent, KeyboardEventInterface);
 
 module.exports = SyntheticKeyboardEvent;
 
-},{"./SyntheticUIEvent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticUIEvent.js","./getEventKey":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/getEventKey.js","./getEventModifierState":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/getEventModifierState.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticMouseEvent.js":[function(require,module,exports){
+},{"./SyntheticUIEvent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticUIEvent.js","./getEventKey":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/getEventKey.js","./getEventModifierState":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/getEventModifierState.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticMouseEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -17533,7 +17561,7 @@ SyntheticUIEvent.augmentClass(SyntheticMouseEvent, MouseEventInterface);
 
 module.exports = SyntheticMouseEvent;
 
-},{"./SyntheticUIEvent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticUIEvent.js","./ViewportMetrics":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ViewportMetrics.js","./getEventModifierState":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/getEventModifierState.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticTouchEvent.js":[function(require,module,exports){
+},{"./SyntheticUIEvent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticUIEvent.js","./ViewportMetrics":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ViewportMetrics.js","./getEventModifierState":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/getEventModifierState.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticTouchEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -17588,7 +17616,7 @@ SyntheticUIEvent.augmentClass(SyntheticTouchEvent, TouchEventInterface);
 
 module.exports = SyntheticTouchEvent;
 
-},{"./SyntheticUIEvent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticUIEvent.js","./getEventModifierState":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/getEventModifierState.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticUIEvent.js":[function(require,module,exports){
+},{"./SyntheticUIEvent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticUIEvent.js","./getEventModifierState":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/getEventModifierState.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticUIEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -17657,7 +17685,7 @@ SyntheticEvent.augmentClass(SyntheticUIEvent, UIEventInterface);
 
 module.exports = SyntheticUIEvent;
 
-},{"./SyntheticEvent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticEvent.js","./getEventTarget":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/getEventTarget.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticWheelEvent.js":[function(require,module,exports){
+},{"./SyntheticEvent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticEvent.js","./getEventTarget":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/getEventTarget.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticWheelEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -17725,7 +17753,7 @@ SyntheticMouseEvent.augmentClass(SyntheticWheelEvent, WheelEventInterface);
 
 module.exports = SyntheticWheelEvent;
 
-},{"./SyntheticMouseEvent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/SyntheticMouseEvent.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/Transaction.js":[function(require,module,exports){
+},{"./SyntheticMouseEvent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/SyntheticMouseEvent.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/Transaction.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -17973,7 +18001,7 @@ var Transaction = {
 module.exports = Transaction;
 
 }).call(this,require('_process'))
-},{"./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ViewportMetrics.js":[function(require,module,exports){
+},{"./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ViewportMetrics.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -18012,7 +18040,7 @@ var ViewportMetrics = {
 
 module.exports = ViewportMetrics;
 
-},{"./getUnboundedScrollPosition":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/getUnboundedScrollPosition.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/accumulate.js":[function(require,module,exports){
+},{"./getUnboundedScrollPosition":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/getUnboundedScrollPosition.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/accumulate.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -18070,7 +18098,7 @@ function accumulate(current, next) {
 module.exports = accumulate;
 
 }).call(this,require('_process'))
-},{"./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/adler32.js":[function(require,module,exports){
+},{"./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/adler32.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -18111,7 +18139,7 @@ function adler32(data) {
 
 module.exports = adler32;
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/cloneWithProps.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/cloneWithProps.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -18176,7 +18204,7 @@ function cloneWithProps(child, props) {
 module.exports = cloneWithProps;
 
 }).call(this,require('_process'))
-},{"./ReactPropTransferer":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactPropTransferer.js","./keyOf":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/keyOf.js","./warning":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/warning.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/containsNode.js":[function(require,module,exports){
+},{"./ReactPropTransferer":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactPropTransferer.js","./keyOf":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/keyOf.js","./warning":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/warning.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/containsNode.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -18227,7 +18255,7 @@ function containsNode(outerNode, innerNode) {
 
 module.exports = containsNode;
 
-},{"./isTextNode":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/isTextNode.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/copyProperties.js":[function(require,module,exports){
+},{"./isTextNode":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/isTextNode.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/copyProperties.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -18285,7 +18313,7 @@ function copyProperties(obj, a, b, c, d, e, f) {
 module.exports = copyProperties;
 
 }).call(this,require('_process'))
-},{"_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/createArrayFrom.js":[function(require,module,exports){
+},{"_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/createArrayFrom.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -18378,7 +18406,7 @@ function createArrayFrom(obj) {
 
 module.exports = createArrayFrom;
 
-},{"./toArray":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/toArray.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/createFullPageComponent.js":[function(require,module,exports){
+},{"./toArray":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/toArray.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/createFullPageComponent.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -18445,7 +18473,7 @@ function createFullPageComponent(componentClass) {
 module.exports = createFullPageComponent;
 
 }).call(this,require('_process'))
-},{"./ReactCompositeComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactCompositeComponent.js","./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/createNodesFromMarkup.js":[function(require,module,exports){
+},{"./ReactCompositeComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactCompositeComponent.js","./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/createNodesFromMarkup.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -18542,7 +18570,7 @@ function createNodesFromMarkup(markup, handleScript) {
 module.exports = createNodesFromMarkup;
 
 }).call(this,require('_process'))
-},{"./ExecutionEnvironment":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js","./createArrayFrom":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/createArrayFrom.js","./getMarkupWrap":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/getMarkupWrap.js","./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/cx.js":[function(require,module,exports){
+},{"./ExecutionEnvironment":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js","./createArrayFrom":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/createArrayFrom.js","./getMarkupWrap":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/getMarkupWrap.js","./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/cx.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -18588,7 +18616,7 @@ function cx(classNames) {
 
 module.exports = cx;
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/dangerousStyleValue.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/dangerousStyleValue.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -18653,7 +18681,7 @@ function dangerousStyleValue(name, value) {
 
 module.exports = dangerousStyleValue;
 
-},{"./CSSProperty":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/CSSProperty.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/emptyFunction.js":[function(require,module,exports){
+},{"./CSSProperty":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/CSSProperty.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/emptyFunction.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -18698,7 +18726,7 @@ copyProperties(emptyFunction, {
 
 module.exports = emptyFunction;
 
-},{"./copyProperties":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/copyProperties.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/emptyObject.js":[function(require,module,exports){
+},{"./copyProperties":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/copyProperties.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/emptyObject.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -18729,7 +18757,7 @@ if ("production" !== process.env.NODE_ENV) {
 module.exports = emptyObject;
 
 }).call(this,require('_process'))
-},{"_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/escapeTextForBrowser.js":[function(require,module,exports){
+},{"_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/escapeTextForBrowser.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -18777,7 +18805,7 @@ function escapeTextForBrowser(text) {
 
 module.exports = escapeTextForBrowser;
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/flattenChildren.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/flattenChildren.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -18840,7 +18868,7 @@ function flattenChildren(children) {
 module.exports = flattenChildren;
 
 }).call(this,require('_process'))
-},{"./traverseAllChildren":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/traverseAllChildren.js","./warning":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/warning.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/focusNode.js":[function(require,module,exports){
+},{"./traverseAllChildren":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/traverseAllChildren.js","./warning":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/warning.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/focusNode.js":[function(require,module,exports){
 /**
  * Copyright 2014 Facebook, Inc.
  *
@@ -18875,7 +18903,7 @@ function focusNode(node) {
 
 module.exports = focusNode;
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/forEachAccumulated.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/forEachAccumulated.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -18913,7 +18941,7 @@ var forEachAccumulated = function(arr, cb, scope) {
 
 module.exports = forEachAccumulated;
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/getActiveElement.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/getActiveElement.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -18949,7 +18977,7 @@ function getActiveElement() /*?DOMElement*/ {
 
 module.exports = getActiveElement;
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/getEventKey.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/getEventKey.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -19068,7 +19096,7 @@ function getEventKey(nativeEvent) {
 module.exports = getEventKey;
 
 }).call(this,require('_process'))
-},{"./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/getEventModifierState.js":[function(require,module,exports){
+},{"./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/getEventModifierState.js":[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  *
@@ -19122,7 +19150,7 @@ function getEventModifierState(nativeEvent) {
 
 module.exports = getEventModifierState;
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/getEventTarget.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/getEventTarget.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -19160,7 +19188,7 @@ function getEventTarget(nativeEvent) {
 
 module.exports = getEventTarget;
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/getMarkupWrap.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/getMarkupWrap.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -19284,7 +19312,7 @@ function getMarkupWrap(nodeName) {
 module.exports = getMarkupWrap;
 
 }).call(this,require('_process'))
-},{"./ExecutionEnvironment":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js","./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/getNodeForCharacterOffset.js":[function(require,module,exports){
+},{"./ExecutionEnvironment":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js","./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/getNodeForCharacterOffset.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -19366,7 +19394,7 @@ function getNodeForCharacterOffset(root, offset) {
 
 module.exports = getNodeForCharacterOffset;
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/getReactRootElementInContainer.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/getReactRootElementInContainer.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -19408,7 +19436,7 @@ function getReactRootElementInContainer(container) {
 
 module.exports = getReactRootElementInContainer;
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/getTextContentAccessor.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/getTextContentAccessor.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -19452,7 +19480,7 @@ function getTextContentAccessor() {
 
 module.exports = getTextContentAccessor;
 
-},{"./ExecutionEnvironment":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/getUnboundedScrollPosition.js":[function(require,module,exports){
+},{"./ExecutionEnvironment":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/getUnboundedScrollPosition.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -19499,7 +19527,7 @@ function getUnboundedScrollPosition(scrollable) {
 
 module.exports = getUnboundedScrollPosition;
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/hyphenate.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/hyphenate.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -19539,7 +19567,7 @@ function hyphenate(string) {
 
 module.exports = hyphenate;
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/hyphenateStyleName.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/hyphenateStyleName.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -19587,7 +19615,7 @@ function hyphenateStyleName(string) {
 
 module.exports = hyphenateStyleName;
 
-},{"./hyphenate":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/hyphenate.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/instantiateReactComponent.js":[function(require,module,exports){
+},{"./hyphenate":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/hyphenate.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/instantiateReactComponent.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -19653,7 +19681,7 @@ function instantiateReactComponent(descriptor) {
 module.exports = instantiateReactComponent;
 
 }).call(this,require('_process'))
-},{"./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js":[function(require,module,exports){
+},{"./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -19717,7 +19745,7 @@ var invariant = function(condition, format, a, b, c, d, e, f) {
 module.exports = invariant;
 
 }).call(this,require('_process'))
-},{"_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/isEventSupported.js":[function(require,module,exports){
+},{"_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/isEventSupported.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -19789,7 +19817,7 @@ function isEventSupported(eventNameSuffix, capture) {
 
 module.exports = isEventSupported;
 
-},{"./ExecutionEnvironment":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/isNode.js":[function(require,module,exports){
+},{"./ExecutionEnvironment":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/isNode.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -19824,7 +19852,7 @@ function isNode(object) {
 
 module.exports = isNode;
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/isTextInputElement.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/isTextInputElement.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -19875,7 +19903,7 @@ function isTextInputElement(elem) {
 
 module.exports = isTextInputElement;
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/isTextNode.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/isTextNode.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -19907,7 +19935,7 @@ function isTextNode(object) {
 
 module.exports = isTextNode;
 
-},{"./isNode":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/isNode.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/joinClasses.js":[function(require,module,exports){
+},{"./isNode":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/isNode.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/joinClasses.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -19953,7 +19981,7 @@ function joinClasses(className/*, ... */) {
 
 module.exports = joinClasses;
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/keyMirror.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/keyMirror.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -20015,7 +20043,7 @@ var keyMirror = function(obj) {
 module.exports = keyMirror;
 
 }).call(this,require('_process'))
-},{"./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/keyOf.js":[function(require,module,exports){
+},{"./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/keyOf.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -20058,7 +20086,7 @@ var keyOf = function(oneKeyObj) {
 
 module.exports = keyOf;
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/mapObject.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/mapObject.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -20112,7 +20140,7 @@ function mapObject(obj, func, context) {
 
 module.exports = mapObject;
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/memoizeStringOnly.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/memoizeStringOnly.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -20153,7 +20181,7 @@ function memoizeStringOnly(callback) {
 
 module.exports = memoizeStringOnly;
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/merge.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/merge.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -20192,7 +20220,7 @@ var merge = function(one, two) {
 
 module.exports = merge;
 
-},{"./mergeInto":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/mergeInto.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/mergeHelpers.js":[function(require,module,exports){
+},{"./mergeInto":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/mergeInto.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/mergeHelpers.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -20343,7 +20371,7 @@ var mergeHelpers = {
 module.exports = mergeHelpers;
 
 }).call(this,require('_process'))
-},{"./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","./keyMirror":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/keyMirror.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/mergeInto.js":[function(require,module,exports){
+},{"./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","./keyMirror":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/keyMirror.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/mergeInto.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -20391,7 +20419,7 @@ function mergeInto(one, two) {
 
 module.exports = mergeInto;
 
-},{"./mergeHelpers":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/mergeHelpers.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/mixInto.js":[function(require,module,exports){
+},{"./mergeHelpers":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/mergeHelpers.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/mixInto.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -20427,7 +20455,7 @@ var mixInto = function(constructor, methodBag) {
 
 module.exports = mixInto;
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/monitorCodeUse.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/monitorCodeUse.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014 Facebook, Inc.
@@ -20468,7 +20496,7 @@ function monitorCodeUse(eventName, data) {
 module.exports = monitorCodeUse;
 
 }).call(this,require('_process'))
-},{"./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/onlyChild.js":[function(require,module,exports){
+},{"./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/onlyChild.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -20515,7 +20543,7 @@ function onlyChild(children) {
 module.exports = onlyChild;
 
 }).call(this,require('_process'))
-},{"./ReactDescriptor":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactDescriptor.js","./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/performance.js":[function(require,module,exports){
+},{"./ReactDescriptor":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactDescriptor.js","./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/performance.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -20550,7 +20578,7 @@ if (ExecutionEnvironment.canUseDOM) {
 
 module.exports = performance || {};
 
-},{"./ExecutionEnvironment":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/performanceNow.js":[function(require,module,exports){
+},{"./ExecutionEnvironment":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/performanceNow.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -20585,7 +20613,7 @@ var performanceNow = performance.now.bind(performance);
 
 module.exports = performanceNow;
 
-},{"./performance":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/performance.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/setInnerHTML.js":[function(require,module,exports){
+},{"./performance":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/performance.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/setInnerHTML.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -20672,7 +20700,7 @@ if (ExecutionEnvironment.canUseDOM) {
 
 module.exports = setInnerHTML;
 
-},{"./ExecutionEnvironment":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/shallowEqual.js":[function(require,module,exports){
+},{"./ExecutionEnvironment":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ExecutionEnvironment.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/shallowEqual.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -20723,7 +20751,7 @@ function shallowEqual(objA, objB) {
 
 module.exports = shallowEqual;
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/shouldUpdateReactComponent.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/shouldUpdateReactComponent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -20769,7 +20797,7 @@ function shouldUpdateReactComponent(prevDescriptor, nextDescriptor) {
 
 module.exports = shouldUpdateReactComponent;
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/toArray.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/toArray.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014 Facebook, Inc.
@@ -20848,7 +20876,7 @@ function toArray(obj) {
 module.exports = toArray;
 
 }).call(this,require('_process'))
-},{"./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/traverseAllChildren.js":[function(require,module,exports){
+},{"./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/traverseAllChildren.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -21045,7 +21073,7 @@ function traverseAllChildren(children, callback, traverseContext) {
 module.exports = traverseAllChildren;
 
 }).call(this,require('_process'))
-},{"./ReactInstanceHandles":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactInstanceHandles.js","./ReactTextComponent":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/ReactTextComponent.js","./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/update.js":[function(require,module,exports){
+},{"./ReactInstanceHandles":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactInstanceHandles.js","./ReactTextComponent":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactTextComponent.js","./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/update.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -21220,7 +21248,7 @@ function update(value, spec) {
 module.exports = update;
 
 }).call(this,require('_process'))
-},{"./copyProperties":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/copyProperties.js","./invariant":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/invariant.js","./keyOf":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/keyOf.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/warning.js":[function(require,module,exports){
+},{"./copyProperties":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/copyProperties.js","./invariant":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/invariant.js","./keyOf":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/keyOf.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/warning.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014 Facebook, Inc.
@@ -21272,25 +21300,11 @@ if ("production" !== process.env.NODE_ENV) {
 module.exports = warning;
 
 }).call(this,require('_process'))
-},{"./emptyFunction":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/emptyFunction.js","_process":"/home/stayrad/projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/react/react.js":[function(require,module,exports){
+},{"./emptyFunction":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/emptyFunction.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/react.js":[function(require,module,exports){
 module.exports = require('./lib/React');
 
-},{"./lib/React":"/home/stayrad/projects/react-colorpicker/node_modules/react/lib/React.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/reflux/node_modules/eventemitter3/index.js":[function(require,module,exports){
+},{"./lib/React":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/React.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/node_modules/eventemitter3/index.js":[function(require,module,exports){
 'use strict';
-
-/**
- * Representation of a single EventEmitter function.
- *
- * @param {Function} fn Event handler to be called.
- * @param {Mixed} context Context for function execution.
- * @param {Boolean} once Only emit once
- * @api private
- */
-function EE(fn, context, once) {
-  this.fn = fn;
-  this.context = context;
-  this.once = once || false;
-}
 
 /**
  * Minimal EventEmitter interface that is molded against the Node.js
@@ -21299,15 +21313,9 @@ function EE(fn, context, once) {
  * @constructor
  * @api public
  */
-function EventEmitter() { /* Nothing to set */ }
-
-/**
- * Holds the assigned EventEmitters by name.
- *
- * @type {Object}
- * @private
- */
-EventEmitter.prototype._events = undefined;
+function EventEmitter() {
+  this._events = {};
+}
 
 /**
  * Return a list of assigned event listeners.
@@ -21317,13 +21325,7 @@ EventEmitter.prototype._events = undefined;
  * @api public
  */
 EventEmitter.prototype.listeners = function listeners(event) {
-  if (!this._events || !this._events[event]) return [];
-
-  for (var i = 0, l = this._events[event].length, ee = []; i < l; i++) {
-    ee.push(this._events[event][i].fn);
-  }
-
-  return ee;
+  return Array.apply(this, this._events[event] || []);
 };
 
 /**
@@ -21339,42 +21341,48 @@ EventEmitter.prototype.emit = function emit(event, a1, a2, a3, a4, a5) {
   var listeners = this._events[event]
     , length = listeners.length
     , len = arguments.length
-    , ee = listeners[0]
+    , fn = listeners[0]
     , args
-    , i, j;
+    , i;
 
   if (1 === length) {
-    if (ee.once) this.removeListener(event, ee.fn, true);
+    if (fn.__EE3_once) this.removeListener(event, fn);
 
     switch (len) {
-      case 1: return ee.fn.call(ee.context), true;
-      case 2: return ee.fn.call(ee.context, a1), true;
-      case 3: return ee.fn.call(ee.context, a1, a2), true;
-      case 4: return ee.fn.call(ee.context, a1, a2, a3), true;
-      case 5: return ee.fn.call(ee.context, a1, a2, a3, a4), true;
-      case 6: return ee.fn.call(ee.context, a1, a2, a3, a4, a5), true;
-    }
+      case 1:
+        fn.call(fn.__EE3_context || this);
+      break;
+      case 2:
+        fn.call(fn.__EE3_context || this, a1);
+      break;
+      case 3:
+        fn.call(fn.__EE3_context || this, a1, a2);
+      break;
+      case 4:
+        fn.call(fn.__EE3_context || this, a1, a2, a3);
+      break;
+      case 5:
+        fn.call(fn.__EE3_context || this, a1, a2, a3, a4);
+      break;
+      case 6:
+        fn.call(fn.__EE3_context || this, a1, a2, a3, a4, a5);
+      break;
 
+      default:
+        for (i = 1, args = new Array(len -1); i < len; i++) {
+          args[i - 1] = arguments[i];
+        }
+
+        fn.apply(fn.__EE3_context || this, args);
+    }
+  } else {
     for (i = 1, args = new Array(len -1); i < len; i++) {
       args[i - 1] = arguments[i];
     }
 
-    ee.fn.apply(ee.context, args);
-  } else {
-    for (i = 0; i < length; i++) {
-      if (listeners[i].once) this.removeListener(event, listeners[i].fn, true);
-
-      switch (len) {
-        case 1: listeners[i].fn.call(listeners[i].context); break;
-        case 2: listeners[i].fn.call(listeners[i].context, a1); break;
-        case 3: listeners[i].fn.call(listeners[i].context, a1, a2); break;
-        default:
-          if (!args) for (j = 1, args = new Array(len -1); j < len; j++) {
-            args[j - 1] = arguments[j];
-          }
-
-          listeners[i].fn.apply(listeners[i].context, args);
-      }
+    for (i = 0; i < length; fn = listeners[++i]) {
+      if (fn.__EE3_once) this.removeListener(event, fn);
+      fn.apply(fn.__EE3_context || this, args);
     }
   }
 
@@ -21392,7 +21400,9 @@ EventEmitter.prototype.emit = function emit(event, a1, a2, a3, a4, a5) {
 EventEmitter.prototype.on = function on(event, fn, context) {
   if (!this._events) this._events = {};
   if (!this._events[event]) this._events[event] = [];
-  this._events[event].push(new EE( fn, context || this ));
+
+  fn.__EE3_context = context;
+  this._events[event].push(fn);
 
   return this;
 };
@@ -21406,11 +21416,8 @@ EventEmitter.prototype.on = function on(event, fn, context) {
  * @api public
  */
 EventEmitter.prototype.once = function once(event, fn, context) {
-  if (!this._events) this._events = {};
-  if (!this._events[event]) this._events[event] = [];
-  this._events[event].push(new EE(fn, context || this, true ));
-
-  return this;
+  fn.__EE3_once = true;
+  return this.on(event, fn, context);
 };
 
 /**
@@ -21418,17 +21425,16 @@ EventEmitter.prototype.once = function once(event, fn, context) {
  *
  * @param {String} event The event we want to remove.
  * @param {Function} fn The listener that we need to find.
- * @param {Boolean} once Only remove once listeners.
  * @api public
  */
-EventEmitter.prototype.removeListener = function removeListener(event, fn, once) {
+EventEmitter.prototype.removeListener = function removeListener(event, fn) {
   if (!this._events || !this._events[event]) return this;
 
   var listeners = this._events[event]
     , events = [];
 
-  if (fn) for (var i = 0, length = listeners.length; i < length; i++) {
-    if (listeners[i].fn !== fn && listeners[i].once !== once) {
+  for (var i = 0, length = listeners.length; i < length; i++) {
+    if (fn && listeners[i] !== fn) {
       events.push(listeners[i]);
     }
   }
@@ -21477,12 +21483,10 @@ EventEmitter.EventEmitter = EventEmitter;
 EventEmitter.EventEmitter2 = EventEmitter;
 EventEmitter.EventEmitter3 = EventEmitter;
 
-if ('object' === typeof module && module.exports) {
-  module.exports = EventEmitter;
-}
+try { module.exports = EventEmitter; }
+catch (e) {}
 
-},{}],"/home/stayrad/projects/react-colorpicker/node_modules/reflux/src/ListenerMixin.js":[function(require,module,exports){
-var _ = require('./utils');
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/ListenerMixin.js":[function(require,module,exports){
 module.exports = {
 
     /**
@@ -21501,13 +21505,10 @@ module.exports = {
      * @param {Action|Store} listenable An Action or Store that should be
      *  listened to.
      * @param {Function} callback The callback to register as event handler
-     * @param {Function} defaultCallback The callback to register as default handler
      */
-    listenTo: function(listenable, callback, defaultCallback) {
+    listenTo: function(listenable, callback) {
         var unsubscribe = listenable.listen(callback, this);
         this.subscriptions.push(unsubscribe);
-
-        _.handleDefaultCallback(this, listenable, defaultCallback);
     },
 
     componentWillUnmount: function() {
@@ -21518,7 +21519,7 @@ module.exports = {
     }
 };
 
-},{"./utils":"/home/stayrad/projects/react-colorpicker/node_modules/reflux/src/utils.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/reflux/src/all.js":[function(require,module,exports){
+},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/all.js":[function(require,module,exports){
 var createAction = require('./createAction');
 
 var slice = Array.prototype.slice;
@@ -21602,7 +21603,7 @@ module.exports = function(/* listenables... */) {
     }
 };
 
-},{"./createAction":"/home/stayrad/projects/react-colorpicker/node_modules/reflux/src/createAction.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/reflux/src/createAction.js":[function(require,module,exports){
+},{"./createAction":"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/createAction.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/createAction.js":[function(require,module,exports){
 var _ = require('./utils');
 
 /**
@@ -21662,7 +21663,7 @@ module.exports = function() {
 
 };
 
-},{"./utils":"/home/stayrad/projects/react-colorpicker/node_modules/reflux/src/utils.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/reflux/src/createStore.js":[function(require,module,exports){
+},{"./utils":"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/utils.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/createStore.js":[function(require,module,exports){
 var _ = require('./utils');
 
 /**
@@ -21681,7 +21682,7 @@ module.exports = function(definition) {
         }
     }
     _.extend(Store.prototype, definition);
-    Store.prototype.listenTo = function(listenable, callback, defaultCallback) {
+    Store.prototype.listenTo = function(listenable, callback) {
         if (listenable === this) {
             throw Error("Store is not able to listen to itself");
         }
@@ -21691,14 +21692,8 @@ module.exports = function(definition) {
         if (this.hasListener(listenable)) {
             throw Error("Store cannot listen to this listenable because of circular loop");
         }
-        _.handleDefaultCallback(this, listenable, defaultCallback);
         this.registered.push(listenable);
-        var unsubscribe = listenable.listen(callback, this);
-        var self = this;
-        return function () {
-            unsubscribe();
-            self.registered.splice(self.registered.indexOf(listenable), 1);
-        };
+        return listenable.listen(callback, this);
     };
     Store.prototype.listen = function(callback, bindContext) {
         var eventHandler = function(args) {
@@ -21731,7 +21726,7 @@ module.exports = function(definition) {
     return new Store();
 };
 
-},{"./utils":"/home/stayrad/projects/react-colorpicker/node_modules/reflux/src/utils.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/reflux/src/index.js":[function(require,module,exports){
+},{"./utils":"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/utils.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/index.js":[function(require,module,exports){
 exports.createAction = require('./createAction');
 
 exports.createStore = require('./createStore');
@@ -21758,18 +21753,18 @@ exports.nextTick = function(nextTick) {
     _.nextTick = nextTick;
 };
 
-},{"./ListenerMixin":"/home/stayrad/projects/react-colorpicker/node_modules/reflux/src/ListenerMixin.js","./all":"/home/stayrad/projects/react-colorpicker/node_modules/reflux/src/all.js","./createAction":"/home/stayrad/projects/react-colorpicker/node_modules/reflux/src/createAction.js","./createStore":"/home/stayrad/projects/react-colorpicker/node_modules/reflux/src/createStore.js","./utils":"/home/stayrad/projects/react-colorpicker/node_modules/reflux/src/utils.js"}],"/home/stayrad/projects/react-colorpicker/node_modules/reflux/src/utils.js":[function(require,module,exports){
+},{"./ListenerMixin":"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/ListenerMixin.js","./all":"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/all.js","./createAction":"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/createAction.js","./createStore":"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/createStore.js","./utils":"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/utils.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/utils.js":[function(require,module,exports){
 /*
- * isObject, extend, isFunction, and bind are taken from undescore/lodash in
+ * isObject, extend and isFunction are taken from undescore/lodash in
  * order to remove the dependency
  */
 
-var isObject = exports.isObject = function(obj) {
+var isObject = module.exports.isObject = function(obj) {
     var type = typeof obj;
     return type === 'function' || type === 'object' && !!obj;
 };
 
-exports.extend = function(obj) {
+module.exports.extend = function(obj) {
     if (!isObject(obj)) {
         return obj;
     }
@@ -21783,28 +21778,13 @@ exports.extend = function(obj) {
     return obj;
 };
 
-var isFunction = exports.isFunction = function(value) {
+module.exports.isFunction = function(value) {
     return typeof value === 'function';
 };
 
-exports.EventEmitter = require('eventemitter3');
-exports.nextTick = function(callback) {
+module.exports.EventEmitter = require('eventemitter3');
+module.exports.nextTick = function(callback) {
     setTimeout(callback, 0);
 };
 
-exports.handleDefaultCallback = function (listener, listenable, defaultCallback) {
-    if (defaultCallback && isFunction(defaultCallback)) {
-        if (listenable.getDefaultData && isFunction(listenable.getDefaultData)) {
-            data = listenable.getDefaultData();
-            if (data && data.then && isFunction(data.then)) {
-                data.then(function() {
-                    defaultCallback.apply(listener, arguments);
-                });
-            } else {
-                defaultCallback.call(listener, data);
-            }
-        }
-    }
-};
-
-},{"eventemitter3":"/home/stayrad/projects/react-colorpicker/node_modules/reflux/node_modules/eventemitter3/index.js"}]},{},["./example/app.js"]);
+},{"eventemitter3":"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/node_modules/eventemitter3/index.js"}]},{},["./example/app.js"]);

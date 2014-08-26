@@ -147,8 +147,11 @@ body {
     left: auto;
     right: 25px;
     width: 100px;
-    height: 100px;
-    background: #bcb83e; }
+    height: 100px; }
+    .colorpicker .sample .current {
+      height: 50%; }
+    .colorpicker .sample .original {
+      height: 50%; }
   .colorpicker .details {
     display: block;
     position: absolute;
