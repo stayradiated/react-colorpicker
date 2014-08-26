@@ -31,3 +31,6 @@ var colorpicker = new ColorPicker({
 React.renderComponent(colorpicker, document.body);
 ```
 
+## License
+
+MIT
