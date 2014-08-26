@@ -1,71 +1,30 @@
 var React = require('react/addons');
 
+var clamp = require('../util/clamp');
+var DraggableMixin = require('./draggable.react');
+
 var Slider = React.createClass({
+
+  mixins: [DraggableMixin],
 
   propTypes: {
     vertical: React.PropTypes.bool.isRequired,
     value: React.PropTypes.number.isRequired,
-    onChange: React.PropTypes.func
   },
 
-  getDefaultProps: function () {
-    return {
-      onChange: function () {}
-    };
-  },
-
-  getInitialState: function () {
-    return {
-      active: false
-    };
-  },
-
-  componentDidMount: function () {
-    document.addEventListener('mousemove', this.handleMouseMove);
-    document.addEventListener('mouseup', this.handleMouseUp);
-  },
-
-  componentWillUnmount: function () {
-    document.removeEventListener('mousemove', this.handleMouseMove);
-    document.removeEventListener('mouseup', this.handleMouseUp);
-  },
-
-  handleMouseDown: function () {
-    this.setState({
-      active: true
-    });
-  },
-
-  handleMouseMove: function (e) {
-    if (! this.state.active) return;
+  updatePosition: function (clientX, clientY) {
     var el = this.getDOMNode();
     var rect = el.getBoundingClientRect();
 
     var value;
     if (this.props.vertical) {
-      value = (rect.bottom - e.clientY) / rect.height;
+      value = (rect.bottom - clientY) / rect.height;
     } else {
-      value = (e.clientX - rect.left) / rect.width;
+      value = (clientX - rect.left) / rect.width;
     }
 
-    if (value < 0) value = 0;
-    else if (value > 1) value = 1;
-
+    value = clamp(value, 0, 1);
     this.props.onChange(value);
-  },
-
-  handleMouseUp: function () {
-    if (! this.state.active) return;
-    this.setState({
-      active: false
-    });
-  },
-
-  getCss: function () {
-    var obj = {};
-    var attr = this.props.vertical ? 'bottom' : 'left';
-    obj[attr] = this.props.value * 100 + '%';
-    return obj;
   },
 
   render: function () {
@@ -75,11 +34,15 @@ var Slider = React.createClass({
       horizontal: ! this.props.vertical
     });
 
+    var styles = {};
+    var attr = this.props.vertical ? 'bottom' : 'left';
+    styles[attr] = this.props.value * 100 + '%';
+
     return (
       /* jshint ignore: start */
       <div className={classes} onMouseDown={this.handleMouseDown}>
         <div className="track" />
-        <div className="pointer" style={this.getCss()} />
+        <div className="pointer" style={styles} />
       </div>
       /* jshint ignore: end */
     );

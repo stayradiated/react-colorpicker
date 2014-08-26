@@ -1,50 +1,25 @@
 var React = require('react/addons');
 
+var clamp = require('../util/clamp');
 var store = require('../store');
 var actions = require('../actions');
+var DraggableMixin = require('./draggable.react');
 
 var Map = React.createClass({
 
-  getInitialState: function () {
-    return {
-      active: false
-    };
-  },
+  mixins: [DraggableMixin],
 
-  componentDidMount: function () {
-    document.addEventListener('mousemove', this.handleMouseMove);
-    document.addEventListener('mouseup', this.handleMouseUp);
-  },
-
-  handleMouseDown: function (e) {
-    e.preventDefault();
-    this.setState({
-      active: true
-    });
-  },
-
-  handleMouseMove: function (e) {
-    if (! this.state.active) return;
+  updatePosition: function (clientX, clientY) {
     var el = this.getDOMNode();
     var rect = el.getBoundingClientRect();
-    var x = (e.clientX - rect.left) / rect.width;
-    var y = (rect.bottom - e.clientY) / rect.height;
+    var x = (clientX - rect.left) / rect.width;
+    var y = (rect.bottom - clientY) / rect.height;
 
-    if (x < 0) x = 0;
-    else if (x > 1) x = 1;
-
-    if (y < 0) y = 0;
-    else if (y > 1) y = 1;
+    x = clamp(x, 0, 1);
+    y = clamp(y, 0, 1);
 
     actions.setSaturation(x);
     actions.setValue(y);
-  },
-
-  handleMouseUp: function () {
-    if (! this.state.active) return;
-    this.setState({
-      active: false
-    });
   },
 
   render: function () {
