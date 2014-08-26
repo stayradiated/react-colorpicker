@@ -163,7 +163,14 @@
     @include abs(25px, auto, auto, 25px);
     width: 100px;
     height: 100px;
-    background: #bcb83e;
+
+    .current {
+      height: 50%;
+    }
+
+    .original {
+      height: 50%;
+    }
   }
 
   .details {
