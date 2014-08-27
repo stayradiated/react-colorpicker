@@ -14,7 +14,7 @@ var Sample = React.createClass({
     origin: React.PropTypes.instanceOf(Colr).isRequired,
   },
 
-  _loadOrigin: function () {
+  loadOrigin: function () {
     this.props.onChange(this.props.origin);
   },
 
@@ -36,7 +36,7 @@ var Sample = React.createClass({
         <div
           className='origin'
           style={originStyle}
-          onClick={this._loadOrigin}
+          onClick={this.loadOrigin}
         />
       </div>
       /* jshint ignore: end */

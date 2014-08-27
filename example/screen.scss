@@ -1,7 +1,10 @@
 body {
   background: #eee;
-  font-family: monospace;
-  font-size: 20px;
+}
+
+body, input {
+  font-family: monaco, monospace;
+  font-size: 14px;
 }
 
 #container {

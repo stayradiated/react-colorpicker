@@ -125,6 +125,7 @@ var ColorPicker = React.createClass({
         <Details
           color={this.state.color}
           rawHsv={this.state.rawHsv}
+          onChange={this.loadColor}
         />
         <Sample
           color={this.state.color}
