@@ -15,71 +15,124 @@ document.addEventListener('DOMContentLoaded', function () {
   React.renderComponent(colorpicker, container);
 });
 
-},{"../lib/index":"/Volumes/Home/Projects/react-colorpicker/lib/index.js","react":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/react.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/actions.js":[function(require,module,exports){
-var Reflux = require('reflux');
+},{"../lib/index":"/Volumes/Home/Projects/react-colorpicker/lib/index.js","react":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/react.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/components/colorpicker.react.jsx":[function(require,module,exports){
+/** @jsx React.DOM */'use strict';
 
-var actions = Reflux.createActions([
-  'setHue',
-  'setSaturation',
-  'setValue'
-]);
-
-module.exports = actions;
-
-},{"reflux":"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/index.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/components/colorpicker.react.jsx":[function(require,module,exports){
-/** @jsx React.DOM */var React = require('react');
-var Reflux = require('reflux');
-
-var store = require('../store');
-var actions = require('../actions');
+var React = require('react');
+var Colr = require('colr');
 
 var Details = require('./details.react');
 var Map = require('./map.react');
 var Sample = require('./sample.react');
 var Slider = require('./slider.react');
+var OnChangeMixin = require('../mixin/onchange.react');
 
 var ColorPicker = React.createClass({displayName: 'ColorPicker',
 
-  mixins: [Reflux.ListenerMixin],
+  mixins: [OnChangeMixin],
 
-  componentDidMount: function () {
-    this.listenTo(store, this.onChange);
+  propTypes: {
+    color: React.PropTypes.string,
   },
 
-  onChange: function () {
-    this.forceUpdate();
+  getDefaultProps: function () {
+    return {
+      color: '#c0ffee'
+    };
+  },
+
+  getInitialState: function () {
+    return this._makeState(Colr.fromHex(this.props.color));
+  },
+
+  componentWillReceiveProps: function (props) {
+    this._loadColor(Colr.fromHex(props.color));
+  },
+ 
+  _makeState: function (color) {
+    return {
+      color: color,
+      rawHsv: color.toScaledHsvObject(),
+      original: color.clone()
+    };
+  },
+
+  _loadColor: function (color) {
+    this.setState(this._makeState(color));
+    this.props.onChange(color);
+  },
+
+  _update: function () {
+    var color = Colr.fromHsv(
+      this.state.rawHsv.h * 360,
+      this.state.rawHsv.s * 100,
+      this.state.rawHsv.v * 100
+    );
+
+    this.setState({ color: color });
+    this.props.onChange(color);
+  },
+
+  _setHue: function (hue) {
+    this.state.rawHsv.h = hue;
+    this._update();
+  },
+
+  _setSaturation: function (saturation) {
+    this.state.rawHsv.s = saturation;
+    this._update();
+  },
+
+  _setValue: function (value) {
+    this.state.rawHsv.v = value;
+    this._update();
+  },
+
+  _setSaturationAndValue: function (saturation, value) {
+    this.state.rawHsv.s = saturation;
+    this.state.rawHsv.v = value;
+    this._update();
   },
 
   render: function () {
-    var rawHsv = store.toRawHsv();
-
     return (
       /* jshint ignore: start */
       React.DOM.div({className: "colorpicker"}, 
         React.DOM.div({className: "light-slider"}, 
           Slider({
             vertical: true, 
-            value: rawHsv.v, 
-            onChange: actions.setValue}
+            value: this.state.rawHsv.v, 
+            onChange: this._setValue}
           )
         ), 
         React.DOM.div({className: "sat-slider"}, 
           Slider({
             vertical: false, 
-            value: rawHsv.s, 
-            onChange: actions.setSaturation}
+            value: this.state.rawHsv.s, 
+            onChange: this._setSaturation}
           )
         ), 
         React.DOM.div({className: "hue-slider"}, 
           Slider({
             vertical: true, 
-            value: rawHsv.h, 
-            onChange: actions.setHue}
+            value: this.state.rawHsv.h, 
+            onChange: this._setHue}
           )
         ), 
-        Map(null), 
-        Details(null), 
-        Sample(null)
+        Map({
+          color: this.state.color, 
+          rawHsv: this.state.rawHsv, 
+          onChange: this._setSaturationAndValue}
+        ), 
+        Details({
+          color: this.state.color, 
+          rawHsv: this.state.rawHsv}
+        ), 
+        Sample({
+          color: this.state.color, 
+          original: this.state.original, 
+          onChange: this._loadColor}
+        )
       )
       /* jshint ignore: end */
     );
@@ -89,21 +142,27 @@ var ColorPicker = React.createClass({displayName: 'ColorPicker',
 
 module.exports = ColorPicker;
 
-},{"../actions":"/Volumes/Home/Projects/react-colorpicker/lib/actions.js","../store":"/Volumes/Home/Projects/react-colorpicker/lib/store.js","./details.react":"/Volumes/Home/Projects/react-colorpicker/lib/components/details.react.jsx","./map.react":"/Volumes/Home/Projects/react-colorpicker/lib/components/map.react.jsx","./sample.react":"/Volumes/Home/Projects/react-colorpicker/lib/components/sample.react.jsx","./slider.react":"/Volumes/Home/Projects/react-colorpicker/lib/components/slider.react.jsx","react":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/react.js","reflux":"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/index.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/components/details.react.jsx":[function(require,module,exports){
-/** @jsx React.DOM */var React = require('react');
+},{"../mixin/onchange.react":"/Volumes/Home/Projects/react-colorpicker/lib/mixin/onchange.react.jsx","./details.react":"/Volumes/Home/Projects/react-colorpicker/lib/components/details.react.jsx","./map.react":"/Volumes/Home/Projects/react-colorpicker/lib/components/map.react.jsx","./sample.react":"/Volumes/Home/Projects/react-colorpicker/lib/components/sample.react.jsx","./slider.react":"/Volumes/Home/Projects/react-colorpicker/lib/components/slider.react.jsx","colr":"/Volumes/Home/Projects/react-colorpicker/node_modules/colr/index.js","react":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/react.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/components/details.react.jsx":[function(require,module,exports){
+/** @jsx React.DOM */'use strict';
 
-var store = require('../store');
+var React = require('react');
+var Colr = require('colr');
 
 var Details = React.createClass({displayName: 'Details',
 
-  render: function () {
-    var rgb = store.toRgb();
-    var hex = store.toHex();
-    var hsv = store.toRawHsv();
+  propTypes: {
+    color: React.PropTypes.instanceOf(Colr).isRequired,
+    rawHsv: React.PropTypes.object.isRequired,
+  },
 
-    hsv.h = Math.round(hsv.h * 360);
-    hsv.s = Math.round(hsv.s * 100);
-    hsv.v = Math.round(hsv.v * 100);
+  render: function () {
+    var rgb = this.props.color.toRgbObject();
+    var hex = this.props.color.toHex();
+    var hsv = {
+      h: Math.round(this.props.rawHsv.h * 360),
+      s: Math.round(this.props.rawHsv.s * 100),
+      v: Math.round(this.props.rawHsv.v * 100),
+    };
 
     return (
       /* jshint ignore: start */
@@ -149,71 +208,24 @@ var Details = React.createClass({displayName: 'Details',
 
 module.exports = Details;
 
-},{"../store":"/Volumes/Home/Projects/react-colorpicker/lib/store.js","react":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/react.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/components/draggable.react.jsx":[function(require,module,exports){
-/** @jsx React.DOM */var React = require("react");
+},{"colr":"/Volumes/Home/Projects/react-colorpicker/node_modules/colr/index.js","react":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/react.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/components/map.react.jsx":[function(require,module,exports){
+/** @jsx React.DOM */'use strict';
 
-function noop() {}
-
-var DraggableMixin = {
-
-  propTypes: {
-    onChange : React.PropTypes.func
-  },
-
-  getInitialState: function () {
-    return {
-      active: false
-    };
-  },
-
-  getDefaultProps: function () {
-    return {
-      onChange: noop
-    };
-  },
-
-  componentDidMount: function() {
-    document.addEventListener("mousemove", this.handleMouseMove);
-    document.addEventListener("mouseup", this.handleMouseUp);
-  },
-
-  componentWillUnmount: function() {
-    document.removeEventListener("mousemove", this.handleMouseMove);
-    document.removeEventListener("mouseup", this.handleMouseUp);
-  },
-
-  handleMouseDown: function (e) {
-    this.setState({ active: true });
-    this.updatePosition(e.clientX, e.clientY);
-  },
-
-  handleMouseMove: function (e) {
-    if (this.state.active) {
-      this.updatePosition(e.clientX, e.clientY);
-    }
-  },
-
-  handleMouseUp: function () {
-    if(this.state.active) {
-      this.setState({ active: false });
-    }
-  }
-
-};
-
-module.exports = DraggableMixin;
-
-},{"react":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/react.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/components/map.react.jsx":[function(require,module,exports){
-/** @jsx React.DOM */var React = require('react/addons');
+var React = require('react/addons');
+var Colr = require('colr');
 
 var clamp = require('../util/clamp');
-var store = require('../store');
-var actions = require('../actions');
-var DraggableMixin = require('./draggable.react');
+var DraggableMixin = require('../mixin/draggable.react');
+var OnChangeMixin = require('../mixin/onchange.react');
 
 var Map = React.createClass({displayName: 'Map',
 
-  mixins: [DraggableMixin],
+  mixins: [DraggableMixin, OnChangeMixin],
+
+  propTypes: {
+    color: React.PropTypes.instanceOf(Colr).isRequired,
+    rawHsv: React.PropTypes.object.isRequired,
+  },
 
   updatePosition: function (clientX, clientY) {
     var el = this.getDOMNode();
@@ -224,13 +236,11 @@ var Map = React.createClass({displayName: 'Map',
     x = clamp(x, 0, 1);
     y = clamp(y, 0, 1);
 
-    actions.setSaturation(x);
-    actions.setValue(y);
+    this.props.onChange(x, y);
   },
 
   render: function () {
-    var rawHsv = store.toRawHsv();
-    var luminosity = store.toLum();
+    var luminosity = this.props.color.toGrayscale();
 
     var classes = React.addons.classSet({
       map: true,
@@ -239,15 +249,19 @@ var Map = React.createClass({displayName: 'Map',
       active: this.state.active
     });
 
+    var bgHue = Colr.fromHsv(this.props.rawHsv.h * 360, 100, 100);
+    var top = 100 - (this.props.rawHsv.v * 100);
+    var left = this.props.rawHsv.s * 100;
+
     return (
       /* jshint ignore: start */
       React.DOM.div({className: classes, onMouseDown: this.handleMouseDown}, 
         React.DOM.div({className: "background", style: {
-          backgroundColor: store.toHue()
+          backgroundColor: bgHue.toHex()
         }}), 
         React.DOM.div({className: "pointer", style: {
-          top: (100 - rawHsv.v * 100) + '%',
-          left: rawHsv.s * 100 + '%'
+          top: top + '%',
+          left: left + '%'
         }})
       )
       /* jshint ignore: end */
@@ -258,27 +272,52 @@ var Map = React.createClass({displayName: 'Map',
 
 module.exports = Map;
 
-},{"../actions":"/Volumes/Home/Projects/react-colorpicker/lib/actions.js","../store":"/Volumes/Home/Projects/react-colorpicker/lib/store.js","../util/clamp":"/Volumes/Home/Projects/react-colorpicker/lib/util/clamp.js","./draggable.react":"/Volumes/Home/Projects/react-colorpicker/lib/components/draggable.react.jsx","react/addons":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/addons.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/components/sample.react.jsx":[function(require,module,exports){
-/** @jsx React.DOM */var React = require('react');
+},{"../mixin/draggable.react":"/Volumes/Home/Projects/react-colorpicker/lib/mixin/draggable.react.jsx","../mixin/onchange.react":"/Volumes/Home/Projects/react-colorpicker/lib/mixin/onchange.react.jsx","../util/clamp":"/Volumes/Home/Projects/react-colorpicker/lib/util/clamp.js","colr":"/Volumes/Home/Projects/react-colorpicker/node_modules/colr/index.js","react/addons":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/addons.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/components/sample.react.jsx":[function(require,module,exports){
+/** @jsx React.DOM */'use strict';
 
-var store = require('../store');
+var React = require('react');
+var Colr = require('colr');
+
+var OnChangeMixin = require('../mixin/onchange.react');
 
 var Sample = React.createClass({displayName: 'Sample',
 
-  loadOriginal: function () {
-    store.load(store.original());
+  mixins: [OnChangeMixin],
+
+  propTypes: {
+    color: React.PropTypes.instanceOf(Colr).isRequired,
+    original: React.PropTypes.instanceOf(Colr).isRequired,
+  },
+
+  _loadCurrent: function () {
+    this.props.onChange(this.props.color);
+  },
+
+  _loadOriginal: function () {
+    this.props.onChange(this.props.original);
   },
 
   render: function () {
+    var currentStyle = {
+      background: this.props.color.toHex()
+    };
+    var originalStyle = {
+      background: this.props.original.toHex()
+    };
+
     return (
       /* jshint ignore: start */
       React.DOM.div({className: "sample"}, 
-        React.DOM.div({className: "current", style: {
-          background: store.toHex()
-        }}), 
-        React.DOM.div({className: "original", style: {
-          background: store.original().toHex()
-        }, onClick: this.loadOriginal})
+        React.DOM.div({
+          className: "current", 
+          style: currentStyle, 
+          onClick: this._loadCurrent}
+        ), 
+        React.DOM.div({
+          className: "original", 
+          style: originalStyle, 
+          onClick: this._loadOriginal}
+        )
       )
       /* jshint ignore: end */
     );
@@ -288,15 +327,18 @@ var Sample = React.createClass({displayName: 'Sample',
 
 module.exports = Sample;
 
-},{"../store":"/Volumes/Home/Projects/react-colorpicker/lib/store.js","react":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/react.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/components/slider.react.jsx":[function(require,module,exports){
-/** @jsx React.DOM */var React = require('react/addons');
+},{"../mixin/onchange.react":"/Volumes/Home/Projects/react-colorpicker/lib/mixin/onchange.react.jsx","colr":"/Volumes/Home/Projects/react-colorpicker/node_modules/colr/index.js","react":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/react.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/components/slider.react.jsx":[function(require,module,exports){
+/** @jsx React.DOM */'use strict';
+
+var React = require('react/addons');
 
 var clamp = require('../util/clamp');
-var DraggableMixin = require('./draggable.react');
+var DraggableMixin = require('../mixin/draggable.react');
+var OnChangeMixin = require('../mixin/onchange.react');
 
 var Slider = React.createClass({displayName: 'Slider',
 
-  mixins: [DraggableMixin],
+  mixins: [DraggableMixin, OnChangeMixin],
 
   propTypes: {
     vertical: React.PropTypes.bool.isRequired,
@@ -343,153 +385,87 @@ var Slider = React.createClass({displayName: 'Slider',
 
 module.exports = Slider;
 
-},{"../util/clamp":"/Volumes/Home/Projects/react-colorpicker/lib/util/clamp.js","./draggable.react":"/Volumes/Home/Projects/react-colorpicker/lib/components/draggable.react.jsx","react/addons":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/addons.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/index.js":[function(require,module,exports){
-var React = require('react');
-var Reflux = require('reflux');
+},{"../mixin/draggable.react":"/Volumes/Home/Projects/react-colorpicker/lib/mixin/draggable.react.jsx","../mixin/onchange.react":"/Volumes/Home/Projects/react-colorpicker/lib/mixin/onchange.react.jsx","../util/clamp":"/Volumes/Home/Projects/react-colorpicker/lib/util/clamp.js","react/addons":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/addons.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/index.js":[function(require,module,exports){
 var Colr = require('colr');
 
-var store = require('./store');
-var ColorPicker = require('./components/colorpicker.react');
-
-var throttle = function (fn) {
-  var last = [-1,-1,-1];
-  return function (color) {
-    var rgb  = color.toRgbArray();
-    if (rgb[0] != last[0] || rgb[1] != last[1] || rgb[2] != last[2]) {
-      fn(color);
-      last = rgb;
-    }
+Colr.prototype.toScaledHsvObject = function () {
+  var hsv = this.toHsvObject();
+  return {
+    h: hsv.h / 360,
+    s: hsv.s / 100,
+    v: hsv.v / 100,
   };
 };
 
-var App = React.createClass({
+module.exports = require('./components/colorpicker.react');
 
-  mixins: [Reflux.ListenerMixin],
+},{"./components/colorpicker.react":"/Volumes/Home/Projects/react-colorpicker/lib/components/colorpicker.react.jsx","colr":"/Volumes/Home/Projects/react-colorpicker/node_modules/colr/index.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/mixin/draggable.react.jsx":[function(require,module,exports){
+/** @jsx React.DOM */'use strict';
+
+var React = require('react');
+
+var DraggableMixin = {
+
+  getInitialState: function () {
+    return {
+      active: false
+    };
+  },
+
+  componentDidMount: function() {
+    document.addEventListener('mousemove', this.handleMouseMove);
+    document.addEventListener('mouseup', this.handleMouseUp);
+  },
+
+  componentWillUnmount: function() {
+    document.removeEventListener('mousemove', this.handleMouseMove);
+    document.removeEventListener('mouseup', this.handleMouseUp);
+  },
+
+  handleMouseDown: function (e) {
+    this.setState({ active: true });
+    this.updatePosition(e.clientX, e.clientY);
+  },
+
+  handleMouseMove: function (e) {
+    if (this.state.active) {
+      this.updatePosition(e.clientX, e.clientY);
+    }
+  },
+
+  handleMouseUp: function () {
+    if(this.state.active) {
+      this.setState({ active: false });
+    }
+  }
+
+};
+
+module.exports = DraggableMixin;
+
+},{"react":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/react.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/mixin/onchange.react.jsx":[function(require,module,exports){
+/** @jsx React.DOM */'use strict';
+
+var React = require('react');
+
+var noop = function () {};
+
+var OnChangeMixin = {
 
   propTypes: {
-    color: React.PropTypes.string,
-    onChange: React.PropTypes.func
+    onChange : React.PropTypes.func,
   },
 
   getDefaultProps: function () {
     return {
-      color: '#c0ffee',
-      onChange: function () {}
+      onChange: noop
     };
-  },
-
-  componentWillReceiveProps: function (props) {
-    store.load(Colr.fromHex(props.color));
-  },
- 
-  componentDidMount: function () {
-    console.log('mounting component', this.props.color);
-    store.load(Colr.fromHex(this.props.color));
-    this.listenTo(store, throttle(this.props.onChange));
-  },
-
-  render: function () {
-    return new ColorPicker();
   }
+};
 
-});
+module.exports = OnChangeMixin;
 
-module.exports = App;
-
-},{"./components/colorpicker.react":"/Volumes/Home/Projects/react-colorpicker/lib/components/colorpicker.react.jsx","./store":"/Volumes/Home/Projects/react-colorpicker/lib/store.js","colr":"/Volumes/Home/Projects/react-colorpicker/node_modules/colr/index.js","react":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/react.js","reflux":"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/index.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/store.js":[function(require,module,exports){
-'use strict';
-
-var Reflux = require('reflux');
-var Colr = require('colr');
-
-var actions = require('./actions');
-
-var state = Colr.fromRgb(0,0,0);
-var rawHsv = { h: 0, s: 0, v: 0 };
-var original = state.clone();
-
-var store = Reflux.createStore({
-
-  init: function () {
-    this.listenTo(actions.setHue, this.setHue);
-    this.listenTo(actions.setSaturation, this.setSaturation);
-    this.listenTo(actions.setValue, this.setValue);
-  },
-
-  load: function (color) {
-    // overwrite state
-    state = color;
-    original = color.clone();
-    rawHsv = this.toScaledHsv();
-    this.trigger(state);
-  },
-
-  _updateState: function () {
-    state.fromHsv(rawHsv.h * 360, rawHsv.s * 100, rawHsv.v * 100);
-    this.trigger(state);
-  },
-
-  setHue: function (hue) {
-    rawHsv.h = hue;
-    this._updateState();
-  },
-
-  setSaturation: function (saturation) {
-    rawHsv.s = saturation;
-    this._updateState();
-  },
-
-  setValue: function (value) {
-    rawHsv.v = value;
-    this._updateState();
-  },
-
-  toHsv: function () {
-    return state.toHsvObject();
-  },
-
-  toScaledHsv: function () { 
-    var hsv = state.toHsvObject();
-    return {
-      h: hsv.h / 360,
-      s: hsv.s / 100,
-      v: hsv.v / 100
-    };
-  },
-
-  toRawHsv: function () {
-    return {
-      h: rawHsv.h,
-      s: rawHsv.s,
-      v: rawHsv.v,
-    };
-  },
-
-  toRgb: function () {
-    return state.toRgbObject();
-  },
-
-  toHex: function () {
-    return state.toHex();
-  },
-
-  toHue: function () {
-    return Colr.fromHsv(rawHsv.h * 360, 100, 100).toHex();
-  },
-
-  toLum: function () {
-    return state.toGrayscale() / 255;
-  },
-
-  original: function () {
-    return original;
-  },
-
-});
-
-module.exports = store;
-
-},{"./actions":"/Volumes/Home/Projects/react-colorpicker/lib/actions.js","colr":"/Volumes/Home/Projects/react-colorpicker/node_modules/colr/index.js","reflux":"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/index.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/util/clamp.js":[function(require,module,exports){
+},{"react":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/react.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/util/clamp.js":[function(require,module,exports){
 function clamp (val, min, max) {
   return val < min ? min : (val > max ? max : val);
 }
@@ -21303,488 +21279,4 @@ module.exports = warning;
 },{"./emptyFunction":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/emptyFunction.js","_process":"/Volumes/Home/Projects/react-colorpicker/node_modules/browserify/node_modules/process/browser.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/react.js":[function(require,module,exports){
 module.exports = require('./lib/React');
 
-},{"./lib/React":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/React.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/node_modules/eventemitter3/index.js":[function(require,module,exports){
-'use strict';
-
-/**
- * Minimal EventEmitter interface that is molded against the Node.js
- * EventEmitter interface.
- *
- * @constructor
- * @api public
- */
-function EventEmitter() {
-  this._events = {};
-}
-
-/**
- * Return a list of assigned event listeners.
- *
- * @param {String} event The events that should be listed.
- * @returns {Array}
- * @api public
- */
-EventEmitter.prototype.listeners = function listeners(event) {
-  return Array.apply(this, this._events[event] || []);
-};
-
-/**
- * Emit an event to all registered event listeners.
- *
- * @param {String} event The name of the event.
- * @returns {Boolean} Indication if we've emitted an event.
- * @api public
- */
-EventEmitter.prototype.emit = function emit(event, a1, a2, a3, a4, a5) {
-  if (!this._events || !this._events[event]) return false;
-
-  var listeners = this._events[event]
-    , length = listeners.length
-    , len = arguments.length
-    , fn = listeners[0]
-    , args
-    , i;
-
-  if (1 === length) {
-    if (fn.__EE3_once) this.removeListener(event, fn);
-
-    switch (len) {
-      case 1:
-        fn.call(fn.__EE3_context || this);
-      break;
-      case 2:
-        fn.call(fn.__EE3_context || this, a1);
-      break;
-      case 3:
-        fn.call(fn.__EE3_context || this, a1, a2);
-      break;
-      case 4:
-        fn.call(fn.__EE3_context || this, a1, a2, a3);
-      break;
-      case 5:
-        fn.call(fn.__EE3_context || this, a1, a2, a3, a4);
-      break;
-      case 6:
-        fn.call(fn.__EE3_context || this, a1, a2, a3, a4, a5);
-      break;
-
-      default:
-        for (i = 1, args = new Array(len -1); i < len; i++) {
-          args[i - 1] = arguments[i];
-        }
-
-        fn.apply(fn.__EE3_context || this, args);
-    }
-  } else {
-    for (i = 1, args = new Array(len -1); i < len; i++) {
-      args[i - 1] = arguments[i];
-    }
-
-    for (i = 0; i < length; fn = listeners[++i]) {
-      if (fn.__EE3_once) this.removeListener(event, fn);
-      fn.apply(fn.__EE3_context || this, args);
-    }
-  }
-
-  return true;
-};
-
-/**
- * Register a new EventListener for the given event.
- *
- * @param {String} event Name of the event.
- * @param {Functon} fn Callback function.
- * @param {Mixed} context The context of the function.
- * @api public
- */
-EventEmitter.prototype.on = function on(event, fn, context) {
-  if (!this._events) this._events = {};
-  if (!this._events[event]) this._events[event] = [];
-
-  fn.__EE3_context = context;
-  this._events[event].push(fn);
-
-  return this;
-};
-
-/**
- * Add an EventListener that's only called once.
- *
- * @param {String} event Name of the event.
- * @param {Function} fn Callback function.
- * @param {Mixed} context The context of the function.
- * @api public
- */
-EventEmitter.prototype.once = function once(event, fn, context) {
-  fn.__EE3_once = true;
-  return this.on(event, fn, context);
-};
-
-/**
- * Remove event listeners.
- *
- * @param {String} event The event we want to remove.
- * @param {Function} fn The listener that we need to find.
- * @api public
- */
-EventEmitter.prototype.removeListener = function removeListener(event, fn) {
-  if (!this._events || !this._events[event]) return this;
-
-  var listeners = this._events[event]
-    , events = [];
-
-  for (var i = 0, length = listeners.length; i < length; i++) {
-    if (fn && listeners[i] !== fn) {
-      events.push(listeners[i]);
-    }
-  }
-
-  //
-  // Reset the array, or remove it completely if we have no more listeners.
-  //
-  if (events.length) this._events[event] = events;
-  else this._events[event] = null;
-
-  return this;
-};
-
-/**
- * Remove all listeners or only the listeners for the specified event.
- *
- * @param {String} event The event want to remove all listeners for.
- * @api public
- */
-EventEmitter.prototype.removeAllListeners = function removeAllListeners(event) {
-  if (!this._events) return this;
-
-  if (event) this._events[event] = null;
-  else this._events = {};
-
-  return this;
-};
-
-//
-// Alias methods names because people roll like that.
-//
-EventEmitter.prototype.off = EventEmitter.prototype.removeListener;
-EventEmitter.prototype.addListener = EventEmitter.prototype.on;
-
-//
-// This function doesn't apply anymore.
-//
-EventEmitter.prototype.setMaxListeners = function setMaxListeners() {
-  return this;
-};
-
-//
-// Expose the module.
-//
-EventEmitter.EventEmitter = EventEmitter;
-EventEmitter.EventEmitter2 = EventEmitter;
-EventEmitter.EventEmitter3 = EventEmitter;
-
-try { module.exports = EventEmitter; }
-catch (e) {}
-
-},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/ListenerMixin.js":[function(require,module,exports){
-module.exports = {
-
-    /**
-     * Set up the mixin before the initial rendering occurs. Event listeners
-     * and callbacks should be registered once the component successfully
-     * mounted (as described in the React docs).
-     */
-    componentWillMount: function() {
-        this.subscriptions = [];
-    },
-
-
-    /**
-     * Subscribes the given callback for action triggered
-     *
-     * @param {Action|Store} listenable An Action or Store that should be
-     *  listened to.
-     * @param {Function} callback The callback to register as event handler
-     */
-    listenTo: function(listenable, callback) {
-        var unsubscribe = listenable.listen(callback, this);
-        this.subscriptions.push(unsubscribe);
-    },
-
-    componentWillUnmount: function() {
-        this.subscriptions.forEach(function(unsubscribe) {
-            unsubscribe();
-        });
-        this.subscriptions = [];
-    }
-};
-
-},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/all.js":[function(require,module,exports){
-var createAction = require('./createAction');
-
-var slice = Array.prototype.slice;
-
-/**
- * Track a set of Actions and Stores. Use Reflux.all if you need to handle
- * data coming in parallel.
- *
- * @param {...Action|Store} listenables Actions and Stores that should be
- *  tracked.
- * @returns {Action} An action which tracks the provided Actions and Stores.
- *  The action will emit once all of the provided listenables have emitted at
- *  least once.
- */
-module.exports = function(/* listenables... */) {
-    var numberOfListenables = arguments.length,
-        // create a new array of the expected size. The initial
-        // values will be falsy, which is fine for us.
-        // Once each item in the array is truthy, the callback can be called
-        listenablesEmitted,
-        // these arguments will be used to *apply* the action.
-        args,
-        // this action combines all the listenables
-        action = createAction();
-
-    action.hasListener = function(listenable) {
-        var i = 0, listener;
-
-        for (; i < args.length; ++i) {
-            listener = args[i];
-            if (listener === listenable || listener.hasListener && listener.hasListener(listenable)) {
-                return true;
-            }
-        }
-
-        return false;
-    };
-
-    reset();
-
-    for (var i = 0; i < numberOfListenables; i++) {
-        arguments[i].listen(newListener(i), null);
-    }
-
-    return action;
-
-    function reset() {
-        listenablesEmitted = new Array(numberOfListenables);
-        args = new Array(numberOfListenables);
-    }
-
-    function newListener(i) {
-        return function() {
-            listenablesEmitted[i] = true;
-            // Reflux users should not need to care about Array and arguments
-            // differences. This makes sure that they get the expected Array
-            // interface
-            args[i] = slice.call(arguments);
-            emitWhenAllListenablesEmitted();
-        };
-    }
-
-    function emitWhenAllListenablesEmitted() {
-        if (didAllListenablesEmit()) {
-            action.apply(action, args);
-            reset();
-        }
-    }
-
-    function didAllListenablesEmit() {
-        // reduce cannot be used because it only iterates over *present*
-        // elements in the array. Initially the Array doesn't contain
-        // elements. For this reason the usage of reduce would always indicate
-        // that all listenables emitted.
-        for (var i = 0; i < numberOfListenables; i++) {
-            if (!listenablesEmitted[i]) {
-                return false;
-            }
-        }
-        return true;
-    }
-};
-
-},{"./createAction":"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/createAction.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/createAction.js":[function(require,module,exports){
-var _ = require('./utils');
-
-/**
- * Creates an action functor object
- */
-module.exports = function() {
-
-    var action = new _.EventEmitter(),
-        eventLabel = "action",
-        functor;
-
-    functor = function() {
-        var args = arguments;
-        _.nextTick(function() {
-            functor.preEmit.apply(functor, args);
-            if (functor.shouldEmit.apply(functor, args)) {
-                action.emit(eventLabel, args);
-            }
-        });
-    };
-
-    /**
-     * Subscribes the given callback for action triggered
-     *
-     * @param {Function} callback The callback to register as event handler
-     * @param {Mixed} [optional] bindContext The context to bind the callback with
-     * @returns {Function} Callback that unsubscribes the registered event handler
-     */
-    functor.listen = function(callback, bindContext) {
-        var eventHandler = function(args) {
-            callback.apply(bindContext, args);
-        };
-        action.addListener(eventLabel, eventHandler);
-
-        return function() {
-            action.removeListener(eventLabel, eventHandler);
-        };
-    };
-
-    /**
-     * Hook used by the action functor that is invoked before emitting
-     * and before `shouldEmit`. The arguments are the ones that the action
-     * is invoked with.
-     */
-    functor.preEmit = function() {};
-
-    /**
-     * Hook used by the action functor after `preEmit` to determine if the
-     * event should be emitted with given arguments. This may be overridden
-     * in your application, default implementation always returns true.
-     *
-     * @returns {Boolean} true if event should be emitted
-     */
-    functor.shouldEmit = function() { return true; };
-
-    return functor;
-
-};
-
-},{"./utils":"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/utils.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/createStore.js":[function(require,module,exports){
-var _ = require('./utils');
-
-/**
- * Creates an event emitting Data Store
- *
- * @param {Object} definition The data store object definition
- */
-module.exports = function(definition) {
-    var store = new _.EventEmitter(),
-        eventLabel = "change";
-
-    function Store() {
-        this.registered = [];
-        if (this.init && _.isFunction(this.init)) {
-            this.init();
-        }
-    }
-    _.extend(Store.prototype, definition);
-    Store.prototype.listenTo = function(listenable, callback) {
-        if (listenable === this) {
-            throw Error("Store is not able to listen to itself");
-        }
-        if (!_.isFunction(listenable.listen)) {
-            throw new TypeError(listenable + " is missing a listen method");
-        }
-        if (this.hasListener(listenable)) {
-            throw Error("Store cannot listen to this listenable because of circular loop");
-        }
-        this.registered.push(listenable);
-        return listenable.listen(callback, this);
-    };
-    Store.prototype.listen = function(callback, bindContext) {
-        var eventHandler = function(args) {
-            callback.apply(bindContext, args);
-        };
-        eventHandler.l = callback;
-        store.addListener(eventLabel, eventHandler);
-
-        return function() {
-            store.removeListener(eventLabel, eventHandler);
-        };
-    };
-    Store.prototype.trigger = function() {
-        store.emit(eventLabel, arguments);
-    };
-    Store.prototype.hasListener = function(listenable) {
-        var i = 0,
-            listener;
-
-        for (;i < this.registered.length; ++i) {
-            listener = this.registered[i];
-            if (listener === listenable || listener.hasListener && listener.hasListener(listenable)) {
-                return true;
-            }
-        }
-
-        return false;
-    };
-
-    return new Store();
-};
-
-},{"./utils":"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/utils.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/index.js":[function(require,module,exports){
-exports.createAction = require('./createAction');
-
-exports.createStore = require('./createStore');
-
-exports.ListenerMixin = require('./ListenerMixin');
-
-exports.all = require('./all');
-
-exports.createActions = function(actionNames) {
-    var i = 0, actions = {};
-    for (; i < actionNames.length; i++) {
-        actions[actionNames[i]] = exports.createAction();
-    }
-    return actions;
-};
-
-exports.setEventEmitter = function(ctx) {
-    var _ = require('./utils');
-    _.EventEmitter = ctx;
-};
-
-exports.nextTick = function(nextTick) {
-    var _ = require('./utils');
-    _.nextTick = nextTick;
-};
-
-},{"./ListenerMixin":"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/ListenerMixin.js","./all":"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/all.js","./createAction":"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/createAction.js","./createStore":"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/createStore.js","./utils":"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/utils.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/src/utils.js":[function(require,module,exports){
-/*
- * isObject, extend and isFunction are taken from undescore/lodash in
- * order to remove the dependency
- */
-
-var isObject = module.exports.isObject = function(obj) {
-    var type = typeof obj;
-    return type === 'function' || type === 'object' && !!obj;
-};
-
-module.exports.extend = function(obj) {
-    if (!isObject(obj)) {
-        return obj;
-    }
-    var source, prop;
-    for (var i = 1, length = arguments.length; i < length; i++) {
-        source = arguments[i];
-        for (prop in source) {
-            obj[prop] = source[prop];
-        }
-    }
-    return obj;
-};
-
-module.exports.isFunction = function(value) {
-    return typeof value === 'function';
-};
-
-module.exports.EventEmitter = require('eventemitter3');
-module.exports.nextTick = function(callback) {
-    setTimeout(callback, 0);
-};
-
-},{"eventemitter3":"/Volumes/Home/Projects/react-colorpicker/node_modules/reflux/node_modules/eventemitter3/index.js"}]},{},["./example/app.js"]);
+},{"./lib/React":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/React.js"}]},{},["./example/app.js"]);
