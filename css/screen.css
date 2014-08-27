@@ -150,7 +150,7 @@ body {
     height: 100px; }
     .colorpicker .sample .current {
       height: 50%; }
-    .colorpicker .sample .original {
+    .colorpicker .sample .origin {
       height: 50%; }
   .colorpicker .details {
     display: block;
