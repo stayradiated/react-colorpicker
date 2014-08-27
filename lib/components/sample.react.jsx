@@ -11,23 +11,19 @@ var Sample = React.createClass({
 
   propTypes: {
     color: React.PropTypes.instanceOf(Colr).isRequired,
-    original: React.PropTypes.instanceOf(Colr).isRequired,
+    origin: React.PropTypes.instanceOf(Colr).isRequired,
   },
 
-  _loadCurrent: function () {
-    this.props.onChange(this.props.color);
-  },
-
-  _loadOriginal: function () {
-    this.props.onChange(this.props.original);
+  _loadOrigin: function () {
+    this.props.onChange(this.props.origin);
   },
 
   render: function () {
     var currentStyle = {
       background: this.props.color.toHex()
     };
-    var originalStyle = {
-      background: this.props.original.toHex()
+    var originStyle = {
+      background: this.props.origin.toHex()
     };
 
     return (
@@ -36,12 +32,11 @@ var Sample = React.createClass({
         <div
           className='current' 
           style={currentStyle}
-          onClick={this._loadCurrent}
         />
         <div
-          className='original'
-          style={originalStyle}
-          onClick={this._loadOriginal}
+          className='origin'
+          style={originStyle}
+          onClick={this._loadOrigin}
         />
       </div>
       /* jshint ignore: end */

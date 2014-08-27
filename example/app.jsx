@@ -1,47 +1,6 @@
-# React-ColorPicker
-
-> A simple colorpicker written using React.
-
-Uses the `Colr` library: https://github.com/stayradiated/colr
-
-## Installation
-
-```
-npm install --save react-colorpicker
-```
-
-You will also need to add some css styles.
-
-See the [example stylesheet](example/colorpicker.scss) for ideas.
-
-## Example Usage
-
-```javascript
-var React = require('react');
-var ColorPicker = require('react-colorpicker');
-
-var colorpicker = new ColorPicker({
-    color: '#c0ffee',
-    onChange: function (color) {
-        // called whenever the color is changed
-        console.log(color.hexString());
-    }
-});
-
-React.renderComponent(colorpicker, document.body);
-```
-
-## Setting the Color
-
-Use the `key` attribute to change the current color.
-
-**Note:** The value of `key` isn't actually read, it's just used to detect if
-the value has changed.
-
-```javascript
 var Colr = require('colr');
 var React = require('react');
-var ColorPicker = require('react-colorpicker');
+var ColorPicker = require('../lib/index');
 
 var App = React.createClass({
 
@@ -98,8 +57,3 @@ var App = React.createClass({
 document.addEventListener('DOMContentLoaded', function () {
   React.renderComponent(new App(), document.body);
 });
-```
-
-## License
-
-MIT

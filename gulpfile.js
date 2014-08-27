@@ -40,7 +40,7 @@ gulp.task('example/app', function () {
     extensions: '.jsx'
   }));
 
-  bundler.add('./example/app.js');
+  bundler.add('./example/app.jsx');
   bundler.transform(reactify);
 
   bundler.on('update', rebundle);

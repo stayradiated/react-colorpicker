@@ -14,37 +14,49 @@ var ColorPicker = React.createClass({
   mixins: [OnChangeMixin],
 
   propTypes: {
-    color: React.PropTypes.string,
+    // you can pass in hex strings or Colr instances
+    color: React.PropTypes.oneOfType([
+      React.PropTypes.string,
+      React.PropTypes.instanceOf(Colr)
+    ]),
   },
 
+  // default colors
   getDefaultProps: function () {
+    var initial = Colr.fromHex('#808080');
     return {
-      color: '#c0ffee'
+      color: initial
     };
   },
 
+  // create the initial state using props.color 
   getInitialState: function () {
-    return this._makeState(Colr.fromHex(this.props.color));
+    var color = this.makeColor(this.props.color);
+    return this.makeState(color);
   },
 
-  componentWillReceiveProps: function (props) {
-    this._loadColor(Colr.fromHex(props.color));
+  // convert hex string into a Colr instance
+  makeColor: function (color) {
+    return typeof color === 'string' ? Colr.fromHex(color) : color;
   },
  
-  _makeState: function (color) {
+  // generate state object from a Colr instance
+  makeState: function (color) {
     return {
       color: color,
-      rawHsv: color.toScaledHsvObject(),
-      original: color.clone()
+      origin: color.clone(),
+      rawHsv: color.toScaledHsvObject()
     };
   },
 
-  _loadColor: function (color) {
-    this.setState(this._makeState(color));
+  // replace current color with another one
+  loadColor: function (color) {
+    this.setState(this.makeState(color));
     this.props.onChange(color);
   },
 
-  _update: function () {
+  // update the current color using the raw hsv values
+  update: function () {
     var color = Colr.fromHsv(
       this.state.rawHsv.h * 360,
       this.state.rawHsv.s * 100,
@@ -55,25 +67,29 @@ var ColorPicker = React.createClass({
     this.props.onChange(color);
   },
 
-  _setHue: function (hue) {
+  // set the hue
+  setHue: function (hue) {
     this.state.rawHsv.h = hue;
-    this._update();
+    this.update();
   },
 
-  _setSaturation: function (saturation) {
+  // set the saturation
+  setSaturation: function (saturation) {
     this.state.rawHsv.s = saturation;
-    this._update();
+    this.update();
   },
 
-  _setValue: function (value) {
+  // set the value
+  setValue: function (value) {
     this.state.rawHsv.v = value;
-    this._update();
+    this.update();
   },
 
-  _setSaturationAndValue: function (saturation, value) {
+  // set the saturation and the value
+  setSaturationAndValue: function (saturation, value) {
     this.state.rawHsv.s = saturation;
     this.state.rawHsv.v = value;
-    this._update();
+    this.update();
   },
 
   render: function () {
@@ -84,27 +100,27 @@ var ColorPicker = React.createClass({
           <Slider
             vertical={true}
             value={this.state.rawHsv.v}
-            onChange={this._setValue}
+            onChange={this.setValue}
           />
         </div>
         <div className="sat-slider">
           <Slider
             vertical={false}
             value={this.state.rawHsv.s}
-            onChange={this._setSaturation}
+            onChange={this.setSaturation}
           />
         </div>
         <div className="hue-slider">
           <Slider
             vertical={true}
             value={this.state.rawHsv.h}
-            onChange={this._setHue}
+            onChange={this.setHue}
           />
         </div>
         <Map
           color={this.state.color}
           rawHsv={this.state.rawHsv}
-          onChange={this._setSaturationAndValue}
+          onChange={this.setSaturationAndValue}
         />
         <Details
           color={this.state.color}
@@ -112,8 +128,8 @@ var ColorPicker = React.createClass({
         />
         <Sample
           color={this.state.color}
-          original={this.state.original}
-          onChange={this._loadColor}
+          origin={this.state.origin}
+          onChange={this.loadColor}
         />
       </div>
       /* jshint ignore: end */
