@@ -29,7 +29,7 @@ var Map = React.createClass({
   },
 
   render: function () {
-    var luminosity = this.props.color.toGrayscale();
+    var luminosity = this.props.color.toGrayscale() / 255;
 
     var classes = React.addons.classSet({
       map: true,
