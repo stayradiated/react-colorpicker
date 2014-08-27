@@ -8,7 +8,7 @@ var App = React.createClass({
     var color = Colr.fromHex('FFF');
     return {
       color: color,
-      origin: color.clone()
+      origin: color.toHex()
     };
   },
 
@@ -22,7 +22,7 @@ var App = React.createClass({
     // replace current color and origin color
     this.setState({
       color: color,
-      origin: color.clone(),
+      origin: color.toHex(),
     });
   },
 
@@ -38,7 +38,7 @@ var App = React.createClass({
       <div>
         <button onClick={this.setColor}>Load Random Color</button>
         <div>Active: {this.state.color.toHex()}</div>
-        <div>Origin: {this.state.origin.toHex()}</div>
+        <div>Origin: {this.state.origin}</div>
 
         <div id='container'>
           <ColorPicker
