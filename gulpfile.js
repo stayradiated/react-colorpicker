@@ -46,6 +46,7 @@ gulp.task('example/app', function () {
   bundler.on('update', rebundle);
 
   function rebundle () {
+    console.log('rebundling');
     return bundler.bundle()
       .on('error', function (err) {
         console.log(err.message);

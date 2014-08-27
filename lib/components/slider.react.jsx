@@ -1,11 +1,14 @@
+'use strict';
+
 var React = require('react/addons');
 
 var clamp = require('../util/clamp');
-var DraggableMixin = require('./draggable.react');
+var DraggableMixin = require('../mixin/draggable.react');
+var OnChangeMixin = require('../mixin/onchange.react');
 
 var Slider = React.createClass({
 
-  mixins: [DraggableMixin],
+  mixins: [DraggableMixin, OnChangeMixin],
 
   propTypes: {
     vertical: React.PropTypes.bool.isRequired,

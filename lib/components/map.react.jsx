@@ -1,13 +1,20 @@
+'use strict';
+
 var React = require('react/addons');
+var Colr = require('colr');
 
 var clamp = require('../util/clamp');
-var store = require('../store');
-var actions = require('../actions');
-var DraggableMixin = require('./draggable.react');
+var DraggableMixin = require('../mixin/draggable.react');
+var OnChangeMixin = require('../mixin/onchange.react');
 
 var Map = React.createClass({
 
-  mixins: [DraggableMixin],
+  mixins: [DraggableMixin, OnChangeMixin],
+
+  propTypes: {
+    color: React.PropTypes.instanceOf(Colr).isRequired,
+    rawHsv: React.PropTypes.object.isRequired,
+  },
 
   updatePosition: function (clientX, clientY) {
     var el = this.getDOMNode();
@@ -18,13 +25,11 @@ var Map = React.createClass({
     x = clamp(x, 0, 1);
     y = clamp(y, 0, 1);
 
-    actions.setSaturation(x);
-    actions.setValue(y);
+    this.props.onChange(x, y);
   },
 
   render: function () {
-    var rawHsv = store.toRawHsv();
-    var luminosity = store.toLum();
+    var luminosity = this.props.color.toGrayscale();
 
     var classes = React.addons.classSet({
       map: true,
@@ -33,15 +38,19 @@ var Map = React.createClass({
       active: this.state.active
     });
 
+    var bgHue = Colr.fromHsv(this.props.rawHsv.h * 360, 100, 100);
+    var top = 100 - (this.props.rawHsv.v * 100);
+    var left = this.props.rawHsv.s * 100;
+
     return (
       /* jshint ignore: start */
       <div className={classes} onMouseDown={this.handleMouseDown}>
         <div className="background" style={{
-          backgroundColor: store.toHue()
+          backgroundColor: bgHue.toHex()
         }} />
         <div className="pointer" style={{
-          top: (100 - rawHsv.v * 100) + '%',
-          left: rawHsv.s * 100 + '%'
+          top: top + '%',
+          left: left + '%'
         }} />
       </div>
       /* jshint ignore: end */

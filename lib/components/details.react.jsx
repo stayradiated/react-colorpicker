@@ -1,17 +1,23 @@
-var React = require('react');
+'use strict';
 
-var store = require('../store');
+var React = require('react');
+var Colr = require('colr');
 
 var Details = React.createClass({
 
-  render: function () {
-    var rgb = store.toRgb();
-    var hex = store.toHex();
-    var hsv = store.toRawHsv();
+  propTypes: {
+    color: React.PropTypes.instanceOf(Colr).isRequired,
+    rawHsv: React.PropTypes.object.isRequired,
+  },
 
-    hsv.h = Math.round(hsv.h * 360);
-    hsv.s = Math.round(hsv.s * 100);
-    hsv.v = Math.round(hsv.v * 100);
+  render: function () {
+    var rgb = this.props.color.toRgbObject();
+    var hex = this.props.color.toHex();
+    var hsv = {
+      h: Math.round(this.props.rawHsv.h * 360),
+      s: Math.round(this.props.rawHsv.s * 100),
+      v: Math.round(this.props.rawHsv.v * 100),
+    };
 
     return (
       /* jshint ignore: start */

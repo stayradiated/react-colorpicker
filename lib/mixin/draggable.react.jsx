@@ -1,12 +1,8 @@
-var React = require("react");
+'use strict';
 
-function noop() {}
+var React = require('react');
 
 var DraggableMixin = {
-
-  propTypes: {
-    onChange : React.PropTypes.func
-  },
 
   getInitialState: function () {
     return {
@@ -14,20 +10,14 @@ var DraggableMixin = {
     };
   },
 
-  getDefaultProps: function () {
-    return {
-      onChange: noop
-    };
-  },
-
   componentDidMount: function() {
-    document.addEventListener("mousemove", this.handleMouseMove);
-    document.addEventListener("mouseup", this.handleMouseUp);
+    document.addEventListener('mousemove', this.handleMouseMove);
+    document.addEventListener('mouseup', this.handleMouseUp);
   },
 
   componentWillUnmount: function() {
-    document.removeEventListener("mousemove", this.handleMouseMove);
-    document.removeEventListener("mouseup", this.handleMouseUp);
+    document.removeEventListener('mousemove', this.handleMouseMove);
+    document.removeEventListener('mouseup', this.handleMouseUp);
   },
 
   handleMouseDown: function (e) {
