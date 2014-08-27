@@ -1,11 +1,8 @@
 {
   "name": "react-colorpicker",
-  "version": "0.0.7",
+  "version": "0.1.0",
   "description": "Colorpicker for React",
   "main": "pkg/index.js",
-  "directories": {
-    "example": "example"
-  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -20,6 +17,7 @@
     "picker",
     "rgb",
     "hsv",
+    "hsl",
     "hex"
   ],
   "author": "George Czabania",
