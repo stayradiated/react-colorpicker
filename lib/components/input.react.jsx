@@ -37,7 +37,7 @@ var Input = React.createClass({
     var value = event.target.value;
     var color = this.props.fn(value);
     if (color !== null) {
-      this.props.onChange(color);
+      this.props.onChange(color.toHex());
     }
     this.setState({ value: value });
   },

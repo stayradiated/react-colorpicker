@@ -25,23 +25,26 @@ var ColorPicker = React.createClass({
     };
   },
 
+  // compare props against state using hex strings
+  // only use the new props if the color is different
+  // this prevents data loss when converting between RGB and HSV
   componentWillReceiveProps: function(nextProps) {
     var nextColor = nextProps.color.toUpperCase();
     var currentColor = Colr.fromHsvObject(this.state.hsv).toHex();
 
     if(nextColor !== currentColor) {
-      this.setState(this.getStateFrom(Colr.fromHex(nextProps.color)));
+      this.setState(this.getStateFrom(nextProps.color));
     }
   },
 
   // create the initial state using props.color 
   getInitialState: function () {
-    var color = Colr.fromHex(this.props.color);
-    return this.getStateFrom(color);
+    return this.getStateFrom(this.props.color);
   },
  
-  // generate state object from a Colr instance
+  // generate state object from a hex string
   getStateFrom: function (color) {
+    color = Colr.fromHex(color);
     return {
       color: color,
       origin: color.clone(),
