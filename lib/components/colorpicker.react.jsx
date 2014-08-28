@@ -114,7 +114,7 @@ var ColorPicker = React.createClass({
   // replace current color with another one
   loadColor: function (color) {
     this.setState(this.getStateFrom(color));
-    this.props.onChange(color);
+    this.props.onChange(Colr.fromHex(color));
   },
 
   // update the current color using the raw hsv values
