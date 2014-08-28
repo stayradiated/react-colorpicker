@@ -49,11 +49,6 @@ var Details = React.createClass({
     var hex = this.props.color.toHex().slice(1);
     var rgb = this.props.color.toRgbObject();
     var hsv = this.props.color.toHsvObject();
-    hsv = {
-      h: Math.round(this.props.hsv.h),
-      s: Math.round(this.props.hsv.s),
-      v: Math.round(this.props.hsv.v),
-    };
 
     return (
       /* jshint ignore: start */
