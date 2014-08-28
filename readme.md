@@ -33,10 +33,7 @@ React.renderComponent(colorpicker, document.body);
 
 ## Setting the Color
 
-Use the `key` attribute to change the current color.
-
-**Note:** The value of `key` isn't actually read, it's just used to detect if
-the value has changed.
+Just change the `color` attribute. Simple.
 
 ```javascript
 var Colr = require('colr');
@@ -46,10 +43,8 @@ var ColorPicker = require('react-colorpicker');
 var App = React.createClass({
 
   getInitialState: function () {
-    var color = Colr.fromHex('FFF');
     return {
-      color: color,
-      origin: color.toHex()
+      color: '#000000',
     };
   },
 
@@ -62,14 +57,13 @@ var App = React.createClass({
 
     // replace current color and origin color
     this.setState({
-      color: color,
-      origin: color.toHex(),
+      color: color.toHex()
     });
   },
 
   handleChange: function (color) {
     this.setState({
-      color: color
+      color: color.toHex()
     });
   },
 
@@ -78,12 +72,10 @@ var App = React.createClass({
     return (
       <div>
         <button onClick={this.setColor}>Load Random Color</button>
-        <div>Active: {this.state.color.toHex()}</div>
-        <div>Origin: {this.state.origin}</div>
+        <div>Active: {this.state.color}</div>
 
         <div id='container'>
           <ColorPicker
-            key={this.state.origin}
             color={this.state.color}
             onChange={this.handleChange}
           />

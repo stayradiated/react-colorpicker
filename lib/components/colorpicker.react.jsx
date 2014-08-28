@@ -14,34 +14,33 @@ var ColorPicker = React.createClass({
   mixins: [OnChangeMixin],
 
   propTypes: {
-    // you can pass in hex strings or Colr instances
-    color: React.PropTypes.oneOfType([
-      React.PropTypes.string,
-      React.PropTypes.instanceOf(Colr)
-    ]),
+    color: React.PropTypes.string,
   },
 
-  // default colors
+  // default color
   getDefaultProps: function () {
-    var initial = Colr.fromHex('#808080');
     return {
-      color: initial
+      color: '#000000'
     };
+  },
+
+  componentWillReceiveProps: function(nextProps) {
+    var nextColor = nextProps.color.toUpperCase();
+    var currentColor = Colr.fromScaledHsvObject(this.state.rawHsv).toHex();
+
+    if(nextColor !== currentColor) {
+      this.setState(this.getStateFrom(Colr.fromHex(nextProps.color)));
+    }
   },
 
   // create the initial state using props.color 
   getInitialState: function () {
-    var color = this.makeColor(this.props.color);
-    return this.makeState(color);
-  },
-
-  // convert hex string into a Colr instance
-  makeColor: function (color) {
-    return typeof color === 'string' ? Colr.fromHex(color) : color;
+    var color = Colr.fromHex(this.props.color);
+    return this.getStateFrom(color);
   },
  
   // generate state object from a Colr instance
-  makeState: function (color) {
+  getStateFrom: function (color) {
     return {
       color: color,
       origin: color.clone(),
@@ -51,7 +50,7 @@ var ColorPicker = React.createClass({
 
   // replace current color with another one
   loadColor: function (color) {
-    this.setState(this.makeState(color));
+    this.setState(this.getStateFrom(color));
     this.props.onChange(color);
   },
 
