@@ -1,7 +1,8 @@
 'use strict';
 
-var React = require('react');
+var React = require('react/addons');
 var Colr = require('colr');
+var classSet = React.addons.classSet;
 
 var Details = require('./details.react');
 var Map = require('./map.react');
@@ -26,7 +27,7 @@ var ColorPicker = React.createClass({
 
   componentWillReceiveProps: function(nextProps) {
     var nextColor = nextProps.color.toUpperCase();
-    var currentColor = Colr.fromScaledHsvObject(this.state.rawHsv).toHex();
+    var currentColor = Colr.fromHsvObject(this.state.hsv).toHex();
 
     if(nextColor !== currentColor) {
       this.setState(this.getStateFrom(Colr.fromHex(nextProps.color)));
@@ -44,8 +45,67 @@ var ColorPicker = React.createClass({
     return {
       color: color,
       origin: color.clone(),
-      rawHsv: color.toScaledHsvObject()
+      hsv: color.toHsvObject()
     };
+  },
+
+  render: function () {
+    var hue = this.getBackgroundHue();
+    var luminosity = this.state.color.toGrayscale();
+
+    var classes = classSet({
+      dark: luminosity <= 128,
+      light: luminosity > 128,
+    });
+
+    return (
+      /* jshint ignore: start */
+      <div className="colorpicker">
+        <div className="light-slider">
+          <Slider
+            vertical={true}
+            value={this.state.hsv.v}
+            max={100}
+            onChange={this.setValue}
+          />
+        </div>
+        <div className="sat-slider">
+          <Slider
+            vertical={false}
+            value={this.state.hsv.s}
+            max={100}
+            onChange={this.setSaturation}
+          />
+        </div>
+        <div className="hue-slider">
+          <Slider
+            vertical={true}
+            value={this.state.hsv.h}
+            max={360}
+            onChange={this.setHue}
+          />
+        </div>
+        <Map
+          x={this.state.hsv.s}
+          y={this.state.hsv.v}
+          max={100}
+          backgroundColor={hue}
+          className={classes}
+          onChange={this.setSaturationAndValue}
+        />
+        <Details
+          color={this.state.color}
+          hsv={this.state.hsv}
+          onChange={this.loadColor}
+        />
+        <Sample
+          color={this.state.color.toHex()}
+          origin={this.state.origin.toHex()}
+          onChange={this.loadColor}
+        />
+      </div>
+      /* jshint ignore: end */
+    );
   },
 
   // replace current color with another one
@@ -56,85 +116,40 @@ var ColorPicker = React.createClass({
 
   // update the current color using the raw hsv values
   update: function () {
-    var color = Colr.fromHsv(
-      this.state.rawHsv.h * 360,
-      this.state.rawHsv.s * 100,
-      this.state.rawHsv.v * 100
-    );
-
+    var color = Colr.fromHsvObject(this.state.hsv);
     this.setState({ color: color });
     this.props.onChange(color);
   },
 
   // set the hue
   setHue: function (hue) {
-    this.state.rawHsv.h = hue;
+    this.state.hsv.h = hue;
     this.update();
   },
 
   // set the saturation
   setSaturation: function (saturation) {
-    this.state.rawHsv.s = saturation;
+    this.state.hsv.s = saturation;
     this.update();
   },
 
   // set the value
   setValue: function (value) {
-    this.state.rawHsv.v = value;
+    this.state.hsv.v = value;
     this.update();
   },
 
   // set the saturation and the value
   setSaturationAndValue: function (saturation, value) {
-    this.state.rawHsv.s = saturation;
-    this.state.rawHsv.v = value;
+    this.state.hsv.s = saturation;
+    this.state.hsv.v = value;
     this.update();
   },
 
-  render: function () {
-    return (
-      /* jshint ignore: start */
-      <div className="colorpicker">
-        <div className="light-slider">
-          <Slider
-            vertical={true}
-            value={this.state.rawHsv.v}
-            onChange={this.setValue}
-          />
-        </div>
-        <div className="sat-slider">
-          <Slider
-            vertical={false}
-            value={this.state.rawHsv.s}
-            onChange={this.setSaturation}
-          />
-        </div>
-        <div className="hue-slider">
-          <Slider
-            vertical={true}
-            value={this.state.rawHsv.h}
-            onChange={this.setHue}
-          />
-        </div>
-        <Map
-          color={this.state.color}
-          rawHsv={this.state.rawHsv}
-          onChange={this.setSaturationAndValue}
-        />
-        <Details
-          color={this.state.color}
-          rawHsv={this.state.rawHsv}
-          onChange={this.loadColor}
-        />
-        <Sample
-          color={this.state.color}
-          origin={this.state.origin}
-          onChange={this.loadColor}
-        />
-      </div>
-      /* jshint ignore: end */
-    );
-  }
+  getBackgroundHue : function() {
+    return Colr.fromHsv(this.state.hsv.h, 100, 100).toHex();
+  },
+
 
 });
 

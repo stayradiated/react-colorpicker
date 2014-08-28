@@ -1,6 +1,7 @@
 'use strict';
 
 var React = require('react/addons');
+var PureRenderMixin = React.addons.PureRenderMixin;
 
 var clamp = require('../util/clamp');
 var DraggableMixin = require('../mixin/draggable.react');
@@ -8,7 +9,11 @@ var OnChangeMixin = require('../mixin/onchange.react');
 
 var Slider = React.createClass({
 
-  mixins: [DraggableMixin, OnChangeMixin],
+  mixins: [
+    DraggableMixin,
+    OnChangeMixin,
+    PureRenderMixin,
+  ],
 
   propTypes: {
     vertical: React.PropTypes.bool.isRequired,
@@ -26,7 +31,7 @@ var Slider = React.createClass({
       value = (clientX - rect.left) / rect.width;
     }
 
-    value = clamp(value, 0, 1);
+    value = this.getScaledValue(value);
     this.props.onChange(value);
   },
 
@@ -39,11 +44,14 @@ var Slider = React.createClass({
 
     var styles = {};
     var attr = this.props.vertical ? 'bottom' : 'left';
-    styles[attr] = this.props.value * 100 + '%';
+    styles[attr] = this.getPercentageValue(this.props.value);
 
     return (
       /* jshint ignore: start */
-      <div className={classes} onMouseDown={this.handleMouseDown}>
+      <div
+        className={classes}
+        onMouseDown={this.startUpdates}
+      >
         <div className="track" />
         <div className="pointer" style={styles} />
       </div>

@@ -12,7 +12,7 @@ var Details = React.createClass({
 
   propTypes: {
     color: React.PropTypes.instanceOf(Colr).isRequired,
-    rawHsv: React.PropTypes.object.isRequired,
+    hsv: React.PropTypes.object.isRequired,
   },
 
   handleRgb: function (id) {
@@ -48,10 +48,11 @@ var Details = React.createClass({
   render: function () {
     var hex = this.props.color.toHex().slice(1);
     var rgb = this.props.color.toRgbObject();
-    var hsv = {
-      h: Math.round(this.props.rawHsv.h * 360),
-      s: Math.round(this.props.rawHsv.s * 100),
-      v: Math.round(this.props.rawHsv.v * 100),
+    var hsv = this.props.color.toHsvObject();
+    hsv = {
+      h: Math.round(this.props.hsv.h),
+      s: Math.round(this.props.hsv.s),
+      v: Math.round(this.props.hsv.v),
     };
 
     return (
@@ -86,7 +87,7 @@ var Details = React.createClass({
             onChange={this.props.onChange}
           />
           <Input
-            label='V:' value={hsv.v}
+            label='B:' value={hsv.v}
             fn={this.handleHsv('v')}
             onChange={this.props.onChange}
           />

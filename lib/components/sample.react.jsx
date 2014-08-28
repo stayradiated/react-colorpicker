@@ -1,17 +1,21 @@
 'use strict';
 
-var React = require('react');
+var React = require('react/addons');
 var Colr = require('colr');
+var PureRenderMixin = React.addons.PureRenderMixin;
 
 var OnChangeMixin = require('../mixin/onchange.react');
 
 var Sample = React.createClass({
 
-  mixins: [OnChangeMixin],
+  mixins: [
+    OnChangeMixin,
+    PureRenderMixin,
+  ],
 
   propTypes: {
-    color: React.PropTypes.instanceOf(Colr).isRequired,
-    origin: React.PropTypes.instanceOf(Colr).isRequired,
+    color: React.PropTypes.string.isRequired,
+    origin: React.PropTypes.string.isRequired,
   },
 
   loadOrigin: function () {
@@ -19,23 +23,16 @@ var Sample = React.createClass({
   },
 
   render: function () {
-    var currentStyle = {
-      background: this.props.color.toHex()
-    };
-    var originStyle = {
-      background: this.props.origin.toHex()
-    };
-
     return (
       /* jshint ignore: start */
       <div className='sample'>
         <div
           className='current' 
-          style={currentStyle}
+          style={{background: this.props.color}}
         />
         <div
           className='origin'
-          style={originStyle}
+          style={{background: this.props.origin}}
           onClick={this.loadOrigin}
         />
       </div>

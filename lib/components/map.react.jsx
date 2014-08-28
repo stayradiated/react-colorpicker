@@ -2,6 +2,8 @@
 
 var React = require('react/addons');
 var Colr = require('colr');
+var PureRenderMixin = React.addons.PureRenderMixin;
+var classSet = React.addons.classSet;
 
 var clamp = require('../util/clamp');
 var DraggableMixin = require('../mixin/draggable.react');
@@ -9,48 +11,49 @@ var OnChangeMixin = require('../mixin/onchange.react');
 
 var Map = React.createClass({
 
-  mixins: [DraggableMixin, OnChangeMixin],
+  mixins: [
+    DraggableMixin,
+    OnChangeMixin,
+    PureRenderMixin,
+  ],
 
   propTypes: {
-    color: React.PropTypes.instanceOf(Colr).isRequired,
-    rawHsv: React.PropTypes.object.isRequired,
+    x: React.PropTypes.number.isRequired,
+    y: React.PropTypes.number.isRequired,
+    backgroundColor: React.PropTypes.string.isRequired,
   },
 
   updatePosition: function (clientX, clientY) {
-    var el = this.getDOMNode();
-    var rect = el.getBoundingClientRect();
+    var rect = this.getDOMNode().getBoundingClientRect();
     var x = (clientX - rect.left) / rect.width;
     var y = (rect.bottom - clientY) / rect.height;
 
-    x = clamp(x, 0, 1);
-    y = clamp(y, 0, 1);
+    x = this.getScaledValue(x);
+    y = this.getScaledValue(y);
 
     this.props.onChange(x, y);
   },
 
   render: function () {
-    var luminosity = this.props.color.toGrayscale() / 255;
-
-    var classes = React.addons.classSet({
+    var classes = classSet({
       map: true,
-      dark: luminosity <= 0.5,
-      light: luminosity > 0.5,
-      active: this.state.active
+      active: this.state.active,
     });
 
-    var bgHue = Colr.fromHsv(this.props.rawHsv.h * 360, 100, 100);
-    var top = 100 - (this.props.rawHsv.v * 100);
-    var left = this.props.rawHsv.s * 100;
+    classes += " " + this.props.className;
 
     return (
       /* jshint ignore: start */
-      <div className={classes} onMouseDown={this.handleMouseDown}>
+      <div
+        className={classes}
+        onMouseDown={this.startUpdates}
+      >
         <div className="background" style={{
-          backgroundColor: bgHue.toHex()
+          backgroundColor: this.props.backgroundColor
         }} />
         <div className="pointer" style={{
-          top: top + '%',
-          left: left + '%'
+          left: this.getPercentageValue(this.props.x),
+          bottom: this.getPercentageValue(this.props.y)
         }} />
       </div>
       /* jshint ignore: end */

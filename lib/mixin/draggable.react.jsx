@@ -2,7 +2,19 @@
 
 var React = require('react');
 
+var clamp = require('../util/clamp');
+
 var DraggableMixin = {
+
+  propTypes: {
+    max: React.PropTypes.number
+  },
+
+  getDefaultProps: function () {
+    return {
+      max: 1
+    };
+  },
 
   getInitialState: function () {
     return {
@@ -10,31 +22,48 @@ var DraggableMixin = {
     };
   },
 
-  componentDidMount: function() {
-    document.addEventListener('mousemove', this.handleMouseMove);
-    document.addEventListener('mouseup', this.handleMouseUp);
+  componentDidMount: function () {
+    document.addEventListener('mousemove', this.handleUpdate);
+    document.addEventListener('mouseup', this.stopUpdates);
   },
 
-  componentWillUnmount: function() {
-    document.removeEventListener('mousemove', this.handleMouseMove);
-    document.removeEventListener('mouseup', this.handleMouseUp);
+  componentWillUnmount: function () {
+    document.removeEventListener('mousemove', this.handleUpdate);
+    document.removeEventListener('mouseup', this.stopUpdates);
   },
 
-  handleMouseDown: function (e) {
+  startUpdates: function (e) {
+    var coords = this.getPosition(e);
     this.setState({ active: true });
-    this.updatePosition(e.clientX, e.clientY);
+    this.updatePosition(coords.x, coords.y);
   },
 
-  handleMouseMove: function (e) {
+  handleUpdate: function (e) {
     if (this.state.active) {
-      this.updatePosition(e.clientX, e.clientY);
+      var coords = this.getPosition(e);
+      this.updatePosition(coords.x, coords.y);
     }
   },
 
-  handleMouseUp: function () {
-    if(this.state.active) {
+  stopUpdates: function () {
+    if (this.state.active) {
       this.setState({ active: false });
     }
+  },
+
+  getPosition : function (e) {
+    return {
+      x : e.clientX,
+      y : e.clientY
+    };
+  },
+
+  getPercentageValue : function (value) {
+    return (value / this.props.max) * 100 + "%";
+  },
+
+  getScaledValue : function (value) {
+    return clamp(value, 0, 1) * this.props.max;
   }
 
 };
