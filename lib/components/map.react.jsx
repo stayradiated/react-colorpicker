@@ -47,6 +47,7 @@ var Map = React.createClass({
       <div
         className={classes}
         onMouseDown={this.startUpdates}
+        onTouchStart={this.startUpdates}
       >
         <div className="background" style={{
           backgroundColor: this.props.backgroundColor
