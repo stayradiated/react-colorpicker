@@ -1,6 +1,6 @@
 {
   "name": "react-colorpicker",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Colorpicker for React",
   "main": "pkg/index.js",
   "scripts": {
@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/stayradiated/react-colorpicker",
   "dependencies": {
-    "colr": "^1.1.5",
+    "colr": "^1.1.6",
     "react": "^0.11.1"
   },
   "devDependencies": {
