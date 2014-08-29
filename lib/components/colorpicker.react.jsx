@@ -29,7 +29,7 @@ var ColorPicker = React.createClass({
   // only use the new props if the color is different
   // this prevents data loss when converting between RGB and HSV
   componentWillReceiveProps: function(nextProps) {
-    var nextColor = nextProps.color.toUpperCase();
+    var nextColor = nextProps.color.toLowerCase();
     var currentColor = Colr.fromHsvObject(this.state.hsv).toHex();
 
     if(nextColor !== currentColor) {
@@ -48,7 +48,7 @@ var ColorPicker = React.createClass({
     return {
       color: color,
       origin: color.clone(),
-      hsv: color.toHsvObject()
+      hsv: color.toRawHsvObject()
     };
   },
 

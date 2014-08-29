@@ -27,18 +27,18 @@
   },
   "homepage": "https://github.com/stayradiated/react-colorpicker",
   "dependencies": {
-    "colr": "^1.1.0",
+    "colr": "^1.1.5",
     "react": "^0.11.1"
   },
   "devDependencies": {
-    "browserify": "^5.10.1",
+    "browserify": "^5.11.0",
     "gulp": "^3.8.7",
-    "gulp-autoprefixer": "^0.0.9",
+    "gulp-autoprefixer": "^0.0.10",
     "gulp-connect": "^2.0.6",
     "gulp-react": "^1.0.0",
     "gulp-sass": "^0.7.3",
     "gulp-streamify": "^0.0.5",
-    "gulp-uglify": "^0.3.2",
+    "gulp-uglify": "^1.0.0",
     "reactify": "^0.14.0",
     "vinyl-source-stream": "^0.1.1",
     "watchify": "^1.0.2"
