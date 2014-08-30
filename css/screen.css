@@ -1,7 +1,9 @@
 body {
-  background: #eee;
-  font-family: monospace;
-  font-size: 20px; }
+  background: #eee; }
+
+body, input {
+  font-family: monaco, monospace;
+  font-size: 14px; }
 
 #container {
   position: absolute;
@@ -147,8 +149,11 @@ body {
     left: auto;
     right: 25px;
     width: 100px;
-    height: 100px;
-    background: #bcb83e; }
+    height: 100px; }
+    .colorpicker .sample .current {
+      height: 50%; }
+    .colorpicker .sample .origin {
+      height: 50%; }
   .colorpicker .details {
     display: block;
     position: absolute;
@@ -164,8 +169,20 @@ body {
       .colorpicker .details ul li {
         list-style-type: none; }
     .colorpicker .details label {
-      color: #888; }
-    .colorpicker .details .value {
-      color: #ccc; }
-    .colorpicker .details .hex {
-      text-transform: uppercase; }
+      display: inline-block;
+      color: #888;
+      width: 15px;
+      margin-right: 5px;
+      text-align: right; }
+    .colorpicker .details input {
+      width: 74px;
+      text-transform: uppercase;
+      background: none;
+      border-radius: 3px;
+      border: none;
+      outline: none;
+      color: #ccc;
+      background: rgba(0, 0, 0, 0.1); }
+      .colorpicker .details input:focus {
+        color: #333;
+        background: rgba(255, 255, 255, 0.9); }
