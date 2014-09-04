@@ -1,6 +1,6 @@
 {
   "name": "react-colorpicker",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Colorpicker for React",
   "main": "pkg/index.js",
   "scripts": {
@@ -12,6 +12,7 @@
   },
   "keywords": [
     "react",
+    "react-component",
     "color",
     "colour",
     "picker",
