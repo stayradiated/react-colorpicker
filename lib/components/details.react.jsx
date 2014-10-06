@@ -53,6 +53,13 @@ var Details = React.createClass({
     return (
       /* jshint ignore: start */
       <div className="details">
+        <ul className="hex">
+          <Input
+            label='#' value={hex}
+            fn={this.handleHex}
+            onChange={this.props.onChange}
+          />
+        </ul>
         <ul className="rgb">
           <Input
             label='R:' value={rgb.r}
@@ -84,13 +91,6 @@ var Details = React.createClass({
           <Input
             label='B:' value={hsv.v}
             fn={this.handleHsv('v')}
-            onChange={this.props.onChange}
-          />
-        </ul>
-        <ul className="hex">
-          <Input
-            label='#' value={hex}
-            fn={this.handleHex}
             onChange={this.props.onChange}
           />
         </ul>
