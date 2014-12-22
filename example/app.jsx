@@ -45,7 +45,7 @@ var App = React.createClass({
           <ColorPicker
             color={this.state.color}
             onChange={this.handleChange}
-            onEmpty={this.handleChange}
+            allowEmpty={true}
           />
         </div>
       </div>

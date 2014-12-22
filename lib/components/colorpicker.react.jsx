@@ -80,7 +80,7 @@ var ColorPicker = React.createClass({
             onChange={this.setSaturation}
           />
         </div>
-        {this.props.onEmpty ? <div className="empty" onClick={this.setEmpty}>Empty</div> : null}
+        {this.props.allowEmpty ? <div className="empty" onClick={this.setEmpty}>Empty</div> : null}
         <div className="hue-slider">
           <Slider
             vertical={true}
@@ -129,7 +129,7 @@ var ColorPicker = React.createClass({
 
   setEmpty: function () {
     this.setState({ empty: true });
-    this.props.onEmpty(false);
+    this.props.onChange(false);
   },
 
   // set the hue
