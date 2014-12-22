@@ -80,6 +80,7 @@ var ColorPicker = React.createClass({
             onChange={this.setSaturation}
           />
         </div>
+        {this.props.onEmpty ? <div className="empty" onClick={this.setEmpty}>Empty</div> : null}
         <div className="hue-slider">
           <Slider
             vertical={true}
@@ -92,6 +93,7 @@ var ColorPicker = React.createClass({
           x={this.state.hsv.s}
           y={this.state.hsv.v}
           max={100}
+          empty={this.state.empty}
           backgroundColor={hue}
           className={classes}
           onChange={this.setSaturationAndValue}
@@ -103,6 +105,7 @@ var ColorPicker = React.createClass({
         />
         <Sample
           color={this.state.color.toHex()}
+          empty={this.state.empty}
           origin={this.state.origin.toHex()}
           onChange={this.loadColor}
         />
@@ -120,8 +123,13 @@ var ColorPicker = React.createClass({
   // update the current color using the raw hsv values
   update: function () {
     var color = Colr.fromHsvObject(this.state.hsv);
-    this.setState({ color: color });
+    this.setState({ color: color, empty: false });
     this.props.onChange(color);
+  },
+
+  setEmpty: function () {
+    this.setState({ empty: true });
+    this.props.onEmpty(false);
   },
 
   // set the hue

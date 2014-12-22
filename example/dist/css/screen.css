@@ -16,6 +16,10 @@ body, input {
 /**
  * RECOMMENDED STYLES
  */
+.empty {
+  padding-left: 10px;
+  cursor: pointer; }
+
 .colorpicker {
   color: #fff;
   background: #333;

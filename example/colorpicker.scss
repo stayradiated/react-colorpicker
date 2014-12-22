@@ -10,7 +10,10 @@
   left: $left;
   right: $right;
 }
-
+.empty{
+  padding-left: 10px;
+  cursor: pointer;
+}
 .colorpicker {
   color: #fff;
   background: #333;

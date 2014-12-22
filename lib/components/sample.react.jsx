@@ -26,10 +26,9 @@ var Sample = React.createClass({
     return (
       /* jshint ignore: start */
       <div className='sample'>
-        <div
+        {this.props.empty ? 'No color' :<div
           className='current' 
-          style={{background: this.props.color}}
-        />
+          style={{background: this.props.color}}/>}
         <div
           className='origin'
           style={{background: this.props.origin}}
