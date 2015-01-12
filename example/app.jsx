@@ -15,8 +15,8 @@ var App = React.createClass({
 
   setColor: function () {
     var color = Colr.fromRgb(
-      Math.random() * 255, 
-      Math.random() * 255, 
+      Math.random() * 255,
+      Math.random() * 255,
       Math.random() * 255
     );
 
@@ -53,5 +53,5 @@ var App = React.createClass({
 });
 
 document.addEventListener('DOMContentLoaded', function () {
-  React.renderComponent(new App(), document.body);
+  React.render(React.createFactory(App)(), document.body);
 });
