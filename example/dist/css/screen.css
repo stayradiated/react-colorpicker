@@ -67,10 +67,8 @@ body, input {
       bottom: 0;
       right: 0; }
     .colorpicker .map .background:after {
-      background: -webkit-linear-gradient(top, rgba(0, 0, 0, 0) 0%, #000000 100%);
       background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, #000000 100%); }
     .colorpicker .map .background:before {
-      background: -webkit-linear-gradient(left, #ffffff 0%, rgba(255, 255, 255, 0) 100%);
       background: linear-gradient(to right, #ffffff 0%, rgba(255, 255, 255, 0) 100%); }
   .colorpicker .slider {
     position: absolute;
@@ -139,7 +137,6 @@ body, input {
     left: auto;
     right: 158px; }
     .colorpicker .hue-slider .track {
-      background: -webkit-linear-gradient(top, #FF0000 0%, #FF0099 10%, #CD00FF 20%, #3200FF 30%, #0066FF 40%, #00FFFD 50%, #00FF66 60%, #35FF00 70%, #CDFF00 80%, #FF9900 90%, #FF0000 100%);
       background: linear-gradient(to bottom, #FF0000 0%, #FF0099 10%, #CD00FF 20%, #3200FF 30%, #0066FF 40%, #00FFFD 50%, #00FF66 60%, #35FF00 70%, #CDFF00 80%, #FF9900 90%, #FF0000 100%); }
   .colorpicker .sample {
     display: block;
