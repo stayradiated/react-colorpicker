@@ -67,8 +67,8 @@ body, input {
       bottom: 0;
       right: 0; }
     .colorpicker .map .background:after {
-      background: -webkit-linear-gradient(top, rgba(0, 0, 0, 0) 0%, #000000 100%);
-      background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, #000000 100%); }
+      background: -webkit-linear-gradient(top, transparent 0%, #000000 100%);
+      background: linear-gradient(to bottom, transparent 0%, #000000 100%); }
     .colorpicker .map .background:before {
       background: -webkit-linear-gradient(left, #ffffff 0%, rgba(255, 255, 255, 0) 100%);
       background: linear-gradient(to right, #ffffff 0%, rgba(255, 255, 255, 0) 100%); }
