@@ -1,9 +1,9 @@
 'use strict';
 
-var React = require('react/addons');
+var React = require('../util/react');
 var Colr = require('colr');
-var PureRenderMixin = React.addons.PureRenderMixin;
-var classSet = React.addons.classSet;
+var PureRenderMixin = require('react/lib/ReactComponentWithPureRenderMixin');
+var classSet = require('react/lib/cx');
 
 var clamp = require('../util/clamp');
 var DraggableMixin = require('../mixin/draggable.react');

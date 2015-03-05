@@ -1,4 +1,6 @@
-var React = require('react');
+'use strict';
+
+var React = require('../util/react');
 var Colr = require('colr');
 
 var OnChangeMixin = require('../mixin/onchange.react');

@@ -1,8 +1,8 @@
 'use strict';
 
-var React = require('react/addons');
+var React = require('../util/react');
 var Colr = require('colr');
-var classSet = React.addons.classSet;
+var classSet = require('react/lib/cx');
 
 var Details = require('./details.react');
 var Map = require('./map.react');

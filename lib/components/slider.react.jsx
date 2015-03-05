@@ -1,7 +1,8 @@
 'use strict';
 
-var React = require('react/addons');
-var PureRenderMixin = React.addons.PureRenderMixin;
+var React = require('../util/react');
+var PureRenderMixin = require('react/lib/ReactComponentWithPureRenderMixin');
+var classSet = require('react/lib/cx');
 
 var clamp = require('../util/clamp');
 var DraggableMixin = require('../mixin/draggable.react');
@@ -36,7 +37,7 @@ var Slider = React.createClass({
   },
 
   render: function () {
-    var classes = React.addons.classSet({
+    var classes = classSet({
       slider: true,
       vertical: this.props.vertical,
       horizontal: ! this.props.vertical
