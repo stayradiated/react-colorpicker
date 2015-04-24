@@ -1,8 +1,8 @@
 'use strict';
 
-var React = require('react/addons');
+var React = require('../util/react');
 var Colr = require('colr');
-var PureRenderMixin = React.addons.PureRenderMixin;
+var PureRenderMixin = require('react/lib/ReactComponentWithPureRenderMixin');
 
 var OnChangeMixin = require('../mixin/onchange.react');
 

@@ -9,8 +9,9 @@ var streamify = require('gulp-streamify');
 var watchify = require('watchify');
 var browserify = require('browserify');
 var uglify = require('gulp-uglify');
+var rename = require('gulp-rename');
 
-gulp.task('default', ['package']); 
+gulp.task('default', ['package', 'browser/minify']); 
 
 gulp.task('package', function () {
   return gulp.src('lib/**/*.js*', {buffer: false})
@@ -20,6 +21,34 @@ gulp.task('package', function () {
 
 gulp.task('watch', ['default'], function () {
   gulp.watch('./lib/**/*', ['package']);
+});
+
+gulp.task('browser', function () {
+  var bundler = browserify({
+    cache: {},
+    packageCache: {},
+    fullPaths: true,
+    extensions: '.jsx',
+    standalone: 'ReactColorpicker',
+  });
+
+  bundler.exclude('react');
+  bundler.add('./lib/index.js');
+  bundler.transform(reactify);
+
+  return bundler.bundle()
+    .on('error', function (err) {
+      console.log(err.message);
+    })
+    .pipe(source('react-colorpicker.js'))
+    .pipe(gulp.dest('./browser'));
+});
+
+gulp.task('browser/minify', ['browser'], function () {
+  return gulp.src('./browser/react-colorpicker.js')
+    .pipe(uglify())
+    .pipe(rename('react-colorpicker.min.js'))
+    .pipe(gulp.dest('./browser'));
 });
 
 gulp.task('example', ['example/stylesheets', 'example/app'], function () {
