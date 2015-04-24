@@ -3,7 +3,7 @@
 var React = require('react/addons');
 var Colr = require('colr');
 var PureRenderMixin = React.addons.PureRenderMixin;
-var classSet = React.addons.classSet;
+var classnames = require('classnames');
 
 var clamp = require('../util/clamp');
 var DraggableMixin = require('../mixin/draggable.react');
@@ -35,7 +35,7 @@ var Map = React.createClass({
   },
 
   render: function () {
-    var classes = classSet({
+    var classes = classnames({
       map: true,
       active: this.state.active,
     });

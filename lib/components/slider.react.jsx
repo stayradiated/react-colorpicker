@@ -2,6 +2,7 @@
 
 var React = require('react/addons');
 var PureRenderMixin = React.addons.PureRenderMixin;
+var classnames = require('classnames');
 
 var clamp = require('../util/clamp');
 var DraggableMixin = require('../mixin/draggable.react');
@@ -36,7 +37,7 @@ var Slider = React.createClass({
   },
 
   render: function () {
-    var classes = React.addons.classSet({
+    var classes = classnames({
       slider: true,
       vertical: this.props.vertical,
       horizontal: ! this.props.vertical

@@ -1,8 +1,8 @@
 'use strict';
 
-var React = require('react/addons');
+var React = require('react');
 var Colr = require('colr');
-var classSet = React.addons.classSet;
+var classnames = require('classnames');
 
 var Details = require('./details.react');
 var Map = require('./map.react');
@@ -56,7 +56,7 @@ var ColorPicker = React.createClass({
     var hue = this.getBackgroundHue();
     var luminosity = this.state.color.toGrayscale();
 
-    var classes = classSet({
+    var classes = classnames({
       dark: luminosity <= 128,
       light: luminosity > 128,
     });
