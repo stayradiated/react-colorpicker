@@ -1,6 +1,6 @@
 {
   "name": "react-colorpicker",
-  "version": "0.3.11",
+  "version": "0.3.12",
   "description": "Colorpicker for React",
   "main": "pkg/index.js",
   "browser": "react-colorpicker.js",
