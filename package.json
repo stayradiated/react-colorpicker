@@ -1,9 +1,8 @@
 {
   "name": "react-colorpicker",
-  "version": "0.3.12",
+  "version": "0.3.13",
   "description": "Colorpicker for React",
   "main": "pkg/index.js",
-  "browser": "react-colorpicker.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
