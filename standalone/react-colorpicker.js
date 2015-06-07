@@ -2,7 +2,7 @@
 module.exports = require('./components/colorpicker.react');
 
 
-},{"./components/colorpicker.react":"/Volumes/Home/Projects/react-colorpicker/lib/components/colorpicker.react.jsx"}],"/Volumes/Home/Projects/react-colorpicker/lib/components/colorpicker.react.jsx":[function(require,module,exports){
+},{"./components/colorpicker.react":"/Users/cayres/userdata/projects/react-colorpicker/lib/components/colorpicker.react.jsx"}],"/Users/cayres/userdata/projects/react-colorpicker/lib/components/colorpicker.react.jsx":[function(require,module,exports){
 'use strict';
 
 var React = require('../util/react');
@@ -42,11 +42,11 @@ var ColorPicker = React.createClass({displayName: "ColorPicker",
     }
   },
 
-  // create the initial state using props.color 
+  // create the initial state using props.color
   getInitialState: function () {
     return this.getStateFrom(this.props.color);
   },
- 
+
   // generate state object from a hex string
   getStateFrom: function (color) {
     color = Colr.fromHex(color);
@@ -110,7 +110,8 @@ var ColorPicker = React.createClass({displayName: "ColorPicker",
           color: this.state.color.toHex(), 
           origin: this.state.origin.toHex(), 
           onChange: this.loadColor}
-        )
+        ), 
+        this.prop.children
       )
       /* jshint ignore: end */
     );
@@ -164,7 +165,7 @@ var ColorPicker = React.createClass({displayName: "ColorPicker",
 module.exports = ColorPicker;
 
 
-},{"../mixin/onchange.react":"/Volumes/Home/Projects/react-colorpicker/lib/mixin/onchange.react.jsx","../util/react":"/Volumes/Home/Projects/react-colorpicker/lib/util/react.js","./details.react":"/Volumes/Home/Projects/react-colorpicker/lib/components/details.react.jsx","./map.react":"/Volumes/Home/Projects/react-colorpicker/lib/components/map.react.jsx","./sample.react":"/Volumes/Home/Projects/react-colorpicker/lib/components/sample.react.jsx","./slider.react":"/Volumes/Home/Projects/react-colorpicker/lib/components/slider.react.jsx","classnames":"/Volumes/Home/Projects/react-colorpicker/node_modules/classnames/index.js","colr":"/Volumes/Home/Projects/react-colorpicker/node_modules/colr/index.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/components/details.react.jsx":[function(require,module,exports){
+},{"../mixin/onchange.react":"/Users/cayres/userdata/projects/react-colorpicker/lib/mixin/onchange.react.jsx","../util/react":"/Users/cayres/userdata/projects/react-colorpicker/lib/util/react.js","./details.react":"/Users/cayres/userdata/projects/react-colorpicker/lib/components/details.react.jsx","./map.react":"/Users/cayres/userdata/projects/react-colorpicker/lib/components/map.react.jsx","./sample.react":"/Users/cayres/userdata/projects/react-colorpicker/lib/components/sample.react.jsx","./slider.react":"/Users/cayres/userdata/projects/react-colorpicker/lib/components/slider.react.jsx","classnames":"/Users/cayres/userdata/projects/react-colorpicker/node_modules/classnames/index.js","colr":"/Users/cayres/userdata/projects/react-colorpicker/node_modules/colr/index.js"}],"/Users/cayres/userdata/projects/react-colorpicker/lib/components/details.react.jsx":[function(require,module,exports){
 'use strict';
 
 var React = require('../util/react');
@@ -271,7 +272,7 @@ var Details = React.createClass({displayName: "Details",
 module.exports = Details;
 
 
-},{"../mixin/onchange.react":"/Volumes/Home/Projects/react-colorpicker/lib/mixin/onchange.react.jsx","../util/react":"/Volumes/Home/Projects/react-colorpicker/lib/util/react.js","./input.react":"/Volumes/Home/Projects/react-colorpicker/lib/components/input.react.jsx","colr":"/Volumes/Home/Projects/react-colorpicker/node_modules/colr/index.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/components/input.react.jsx":[function(require,module,exports){
+},{"../mixin/onchange.react":"/Users/cayres/userdata/projects/react-colorpicker/lib/mixin/onchange.react.jsx","../util/react":"/Users/cayres/userdata/projects/react-colorpicker/lib/util/react.js","./input.react":"/Users/cayres/userdata/projects/react-colorpicker/lib/components/input.react.jsx","colr":"/Users/cayres/userdata/projects/react-colorpicker/node_modules/colr/index.js"}],"/Users/cayres/userdata/projects/react-colorpicker/lib/components/input.react.jsx":[function(require,module,exports){
 'use strict';
 
 var React = require('../util/react');
@@ -347,7 +348,7 @@ var Input = React.createClass({displayName: "Input",
 module.exports = Input;
 
 
-},{"../mixin/onchange.react":"/Volumes/Home/Projects/react-colorpicker/lib/mixin/onchange.react.jsx","../util/react":"/Volumes/Home/Projects/react-colorpicker/lib/util/react.js","colr":"/Volumes/Home/Projects/react-colorpicker/node_modules/colr/index.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/components/map.react.jsx":[function(require,module,exports){
+},{"../mixin/onchange.react":"/Users/cayres/userdata/projects/react-colorpicker/lib/mixin/onchange.react.jsx","../util/react":"/Users/cayres/userdata/projects/react-colorpicker/lib/util/react.js","colr":"/Users/cayres/userdata/projects/react-colorpicker/node_modules/colr/index.js"}],"/Users/cayres/userdata/projects/react-colorpicker/lib/components/map.react.jsx":[function(require,module,exports){
 'use strict';
 
 var React = require('../util/react');
@@ -416,7 +417,7 @@ var Map = React.createClass({displayName: "Map",
 module.exports = Map;
 
 
-},{"../mixin/draggable.react":"/Volumes/Home/Projects/react-colorpicker/lib/mixin/draggable.react.jsx","../mixin/onchange.react":"/Volumes/Home/Projects/react-colorpicker/lib/mixin/onchange.react.jsx","../util/clamp":"/Volumes/Home/Projects/react-colorpicker/lib/util/clamp.js","../util/react":"/Volumes/Home/Projects/react-colorpicker/lib/util/react.js","classnames":"/Volumes/Home/Projects/react-colorpicker/node_modules/classnames/index.js","colr":"/Volumes/Home/Projects/react-colorpicker/node_modules/colr/index.js","react/lib/ReactComponentWithPureRenderMixin":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactComponentWithPureRenderMixin.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/components/sample.react.jsx":[function(require,module,exports){
+},{"../mixin/draggable.react":"/Users/cayres/userdata/projects/react-colorpicker/lib/mixin/draggable.react.jsx","../mixin/onchange.react":"/Users/cayres/userdata/projects/react-colorpicker/lib/mixin/onchange.react.jsx","../util/clamp":"/Users/cayres/userdata/projects/react-colorpicker/lib/util/clamp.js","../util/react":"/Users/cayres/userdata/projects/react-colorpicker/lib/util/react.js","classnames":"/Users/cayres/userdata/projects/react-colorpicker/node_modules/classnames/index.js","colr":"/Users/cayres/userdata/projects/react-colorpicker/node_modules/colr/index.js","react/lib/ReactComponentWithPureRenderMixin":"/Users/cayres/userdata/projects/react-colorpicker/node_modules/react/lib/ReactComponentWithPureRenderMixin.js"}],"/Users/cayres/userdata/projects/react-colorpicker/lib/components/sample.react.jsx":[function(require,module,exports){
 'use strict';
 
 var React = require('../util/react');
@@ -464,7 +465,7 @@ var Sample = React.createClass({displayName: "Sample",
 module.exports = Sample;
 
 
-},{"../mixin/onchange.react":"/Volumes/Home/Projects/react-colorpicker/lib/mixin/onchange.react.jsx","../util/react":"/Volumes/Home/Projects/react-colorpicker/lib/util/react.js","colr":"/Volumes/Home/Projects/react-colorpicker/node_modules/colr/index.js","react/lib/ReactComponentWithPureRenderMixin":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactComponentWithPureRenderMixin.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/components/slider.react.jsx":[function(require,module,exports){
+},{"../mixin/onchange.react":"/Users/cayres/userdata/projects/react-colorpicker/lib/mixin/onchange.react.jsx","../util/react":"/Users/cayres/userdata/projects/react-colorpicker/lib/util/react.js","colr":"/Users/cayres/userdata/projects/react-colorpicker/node_modules/colr/index.js","react/lib/ReactComponentWithPureRenderMixin":"/Users/cayres/userdata/projects/react-colorpicker/node_modules/react/lib/ReactComponentWithPureRenderMixin.js"}],"/Users/cayres/userdata/projects/react-colorpicker/lib/components/slider.react.jsx":[function(require,module,exports){
 'use strict';
 
 var React = require('../util/react');
@@ -533,7 +534,7 @@ var Slider = React.createClass({displayName: "Slider",
 module.exports = Slider;
 
 
-},{"../mixin/draggable.react":"/Volumes/Home/Projects/react-colorpicker/lib/mixin/draggable.react.jsx","../mixin/onchange.react":"/Volumes/Home/Projects/react-colorpicker/lib/mixin/onchange.react.jsx","../util/clamp":"/Volumes/Home/Projects/react-colorpicker/lib/util/clamp.js","../util/react":"/Volumes/Home/Projects/react-colorpicker/lib/util/react.js","classnames":"/Volumes/Home/Projects/react-colorpicker/node_modules/classnames/index.js","react/lib/ReactComponentWithPureRenderMixin":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactComponentWithPureRenderMixin.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/mixin/draggable.react.jsx":[function(require,module,exports){
+},{"../mixin/draggable.react":"/Users/cayres/userdata/projects/react-colorpicker/lib/mixin/draggable.react.jsx","../mixin/onchange.react":"/Users/cayres/userdata/projects/react-colorpicker/lib/mixin/onchange.react.jsx","../util/clamp":"/Users/cayres/userdata/projects/react-colorpicker/lib/util/clamp.js","../util/react":"/Users/cayres/userdata/projects/react-colorpicker/lib/util/react.js","classnames":"/Users/cayres/userdata/projects/react-colorpicker/node_modules/classnames/index.js","react/lib/ReactComponentWithPureRenderMixin":"/Users/cayres/userdata/projects/react-colorpicker/node_modules/react/lib/ReactComponentWithPureRenderMixin.js"}],"/Users/cayres/userdata/projects/react-colorpicker/lib/mixin/draggable.react.jsx":[function(require,module,exports){
 'use strict';
 
 var React = require('../util/react');
@@ -616,7 +617,7 @@ var DraggableMixin = {
 module.exports = DraggableMixin;
 
 
-},{"../util/clamp":"/Volumes/Home/Projects/react-colorpicker/lib/util/clamp.js","../util/react":"/Volumes/Home/Projects/react-colorpicker/lib/util/react.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/mixin/onchange.react.jsx":[function(require,module,exports){
+},{"../util/clamp":"/Users/cayres/userdata/projects/react-colorpicker/lib/util/clamp.js","../util/react":"/Users/cayres/userdata/projects/react-colorpicker/lib/util/react.js"}],"/Users/cayres/userdata/projects/react-colorpicker/lib/mixin/onchange.react.jsx":[function(require,module,exports){
 'use strict';
 
 var React = require('../util/react');
@@ -639,7 +640,7 @@ var OnChangeMixin = {
 module.exports = OnChangeMixin;
 
 
-},{"../util/react":"/Volumes/Home/Projects/react-colorpicker/lib/util/react.js"}],"/Volumes/Home/Projects/react-colorpicker/lib/util/clamp.js":[function(require,module,exports){
+},{"../util/react":"/Users/cayres/userdata/projects/react-colorpicker/lib/util/react.js"}],"/Users/cayres/userdata/projects/react-colorpicker/lib/util/clamp.js":[function(require,module,exports){
 function clamp (val, min, max) {
   return val < min ? min : (val > max ? max : val);
 }
@@ -647,7 +648,7 @@ function clamp (val, min, max) {
 module.exports = clamp;
 
 
-},{}],"/Volumes/Home/Projects/react-colorpicker/lib/util/react.js":[function(require,module,exports){
+},{}],"/Users/cayres/userdata/projects/react-colorpicker/lib/util/react.js":[function(require,module,exports){
 if ((typeof window !== 'undefined') && (typeof window.React !== 'undefined')) {
   module.exports = window.React;
 } else {
@@ -655,12 +656,11 @@ if ((typeof window !== 'undefined') && (typeof window.React !== 'undefined')) {
 }
 
 
-},{"react":false}],"/Volumes/Home/Projects/react-colorpicker/node_modules/classnames/index.js":[function(require,module,exports){
-/*
+},{"react":false}],"/Users/cayres/userdata/projects/react-colorpicker/node_modules/classnames/index.js":[function(require,module,exports){
+/*!
   Copyright (c) 2015 Jed Watson.
-  
   Licensed under the MIT License (MIT), see
-  https://github.com/JedWatson/classnames/blob/master/LICENSE
+  http://jedwatson.github.io/classnames
 */
 
 function classNames() {
@@ -701,7 +701,7 @@ if (typeof define !== 'undefined' && define.amd) {
 	});
 }
 
-},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/colr/index.js":[function(require,module,exports){
+},{}],"/Users/cayres/userdata/projects/react-colorpicker/node_modules/colr/index.js":[function(require,module,exports){
 'use strict';
 
 
@@ -1067,7 +1067,7 @@ function clampHsx (h, s, x) {
 
 module.exports = Colr;
 
-},{"colr-convert":"/Volumes/Home/Projects/react-colorpicker/node_modules/colr/node_modules/colr-convert/index.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/colr/node_modules/colr-convert/index.js":[function(require,module,exports){
+},{"colr-convert":"/Users/cayres/userdata/projects/react-colorpicker/node_modules/colr/node_modules/colr-convert/index.js"}],"/Users/cayres/userdata/projects/react-colorpicker/node_modules/colr/node_modules/colr-convert/index.js":[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -1344,7 +1344,7 @@ function rgb2grayscale (rgb) {
   return (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000;
 }
 
-},{}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/ReactComponentWithPureRenderMixin.js":[function(require,module,exports){
+},{}],"/Users/cayres/userdata/projects/react-colorpicker/node_modules/react/lib/ReactComponentWithPureRenderMixin.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -1393,7 +1393,7 @@ var ReactComponentWithPureRenderMixin = {
 
 module.exports = ReactComponentWithPureRenderMixin;
 
-},{"./shallowEqual":"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/shallowEqual.js"}],"/Volumes/Home/Projects/react-colorpicker/node_modules/react/lib/shallowEqual.js":[function(require,module,exports){
+},{"./shallowEqual":"/Users/cayres/userdata/projects/react-colorpicker/node_modules/react/lib/shallowEqual.js"}],"/Users/cayres/userdata/projects/react-colorpicker/node_modules/react/lib/shallowEqual.js":[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.

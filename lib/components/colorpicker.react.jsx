@@ -37,11 +37,11 @@ var ColorPicker = React.createClass({
     }
   },
 
-  // create the initial state using props.color 
+  // create the initial state using props.color
   getInitialState: function () {
     return this.getStateFrom(this.props.color);
   },
- 
+
   // generate state object from a hex string
   getStateFrom: function (color) {
     color = Colr.fromHex(color);
@@ -106,6 +106,7 @@ var ColorPicker = React.createClass({
           origin={this.state.origin.toHex()}
           onChange={this.loadColor}
         />
+        {this.prop.children}
       </div>
       /* jshint ignore: end */
     );
