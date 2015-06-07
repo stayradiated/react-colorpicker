@@ -41,7 +41,6 @@ var Map = React.createClass({
     });
 
     classes += " " + this.props.className;
-
     return (
       /* jshint ignore: start */
       <div
@@ -52,10 +51,10 @@ var Map = React.createClass({
         <div className="background" style={{
           backgroundColor: this.props.backgroundColor
         }} />
-        <div className="pointer" style={{
+        {this.props.empty ? null : <div className="pointer" style={{
           left: this.getPercentageValue(this.props.x),
           bottom: this.getPercentageValue(this.props.y)
-        }} />
+        }} />}
       </div>
       /* jshint ignore: end */
     );

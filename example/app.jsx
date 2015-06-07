@@ -27,9 +27,11 @@ var App = React.createClass({
   },
 
   handleChange: function (color) {
-    this.setState({
+    console.log(color)
+    if(color) this.setState({
       color: color.toHex()
     });
+    else console.log('empty color')
   },
 
   render: function () {
@@ -43,6 +45,7 @@ var App = React.createClass({
           <ColorPicker
             color={this.state.color}
             onChange={this.handleChange}
+            allowEmpty={true}
           />
         </div>
       </div>

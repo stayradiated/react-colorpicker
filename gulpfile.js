@@ -20,7 +20,9 @@ gulp.task('package', function () {
 });
 
 gulp.task('watch', ['default'], function () {
-  gulp.watch('./lib/**/*', ['package']);
+  gulp.watch('./lib/**/*', ['package','example/app']);
+  gulp.watch('./example/app.jsx', ['example/app']);
+
 });
 
 gulp.task('standalone', function () {
