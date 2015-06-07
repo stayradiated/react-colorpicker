@@ -106,7 +106,7 @@ var ColorPicker = React.createClass({
           origin={this.state.origin.toHex()}
           onChange={this.loadColor}
         />
-        {this.prop.children}
+        {this.props.children}
       </div>
       /* jshint ignore: end */
     );
