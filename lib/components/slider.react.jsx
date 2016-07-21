@@ -1,6 +1,7 @@
 'use strict';
 
 var React = require('../util/react');
+var ReactDOM = require('../util/react-dom');
 var PureRenderMixin = require('react/lib/ReactComponentWithPureRenderMixin');
 var classnames = require('classnames');
 
@@ -22,7 +23,7 @@ var Slider = React.createClass({
   },
 
   updatePosition: function (clientX, clientY) {
-    var el = this.getDOMNode();
+    var el = ReactDOM.findDOMNode(this);
     var rect = el.getBoundingClientRect();
 
     var value;
